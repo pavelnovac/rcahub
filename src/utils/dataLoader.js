@@ -2,9 +2,12 @@
 let rcaCells = null
 let bnmData = null
 
+// Get base URL for assets (handles both dev and production)
+const baseUrl = import.meta.env.BASE_URL
+
 async function loadRcaCells() {
   if (!rcaCells) {
-    const response = await fetch('/rca_cells.json')
+    const response = await fetch(`${baseUrl}rca_cells.json`)
     rcaCells = await response.json()
   }
   return rcaCells
@@ -12,7 +15,7 @@ async function loadRcaCells() {
 
 async function loadBnmData() {
   if (!bnmData) {
-    const response = await fetch('/rca_bnm_cells.json')
+    const response = await fetch(`${baseUrl}rca_bnm_cells.json`)
     bnmData = await response.json()
     // BNM data is for 2026
     if (bnmData && !bnmData.year) {
@@ -135,7 +138,7 @@ export function getPremiumValue(company, cellId) {
  */
 export async function loadCompaniesFromFile() {
   try {
-    const response = await fetch('/all_companies.json')
+    const response = await fetch(`${baseUrl}all_companies.json`)
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
@@ -167,7 +170,7 @@ export async function loadCompaniesFromFile() {
  */
 export async function loadCompaniesFromFileByYear(year, fileName = 'all_companies.json') {
   try {
-    const response = await fetch(`/${fileName}`)
+    const response = await fetch(`${baseUrl}${fileName}`)
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
