@@ -286,11 +286,29 @@ function PriceComparison() {
     )
   }
 
+  // Get value for a specific company
+  const getCompanyValue = (cellId, companies, companyId) => {
+    const company = companies.find(c => c.company_id === companyId)
+    if (!company) return null
+    return getPremiumValue(company, cellId)
+  }
+
   // Render comparison cell with all info in one cell
   const renderComparisonCell = (vehicle, territoryId, category) => {
     const cellId = getCellId(vehicle.vehicle_id, territoryId, category.person_category_id)
-    const { value: value2025 } = getMinValueAndCompany(cellId, companies2025)
-    const { value: value2026 } = getMinValueAndCompany(cellId, companies2026)
+    
+    let value2025, value2026
+    
+    if (selectedCompany === 'min') {
+      // Show minimum values across all companies
+      value2025 = getMinValueAndCompany(cellId, companies2025).value
+      value2026 = getMinValueAndCompany(cellId, companies2026).value
+    } else {
+      // Show values for selected company
+      value2025 = getCompanyValue(cellId, companies2025, selectedCompany)
+      value2026 = getCompanyValue(cellId, companies2026, selectedCompany)
+    }
+    
     const comparison = getComparison(value2025, value2026)
     
     const bgClass = getCellBgClass(value2025, value2026)
@@ -307,9 +325,9 @@ function PriceComparison() {
         <div className="text-sm font-bold text-gray-900">
           {formatCurrency(value2026)}
         </div>
-        {/* 2025 Price - Smaller, muted */}
-        <div className="text-xs text-gray-500 mt-0.5">
-          2025: {formatCurrency(value2025)}
+        {/* 2025 Price - Smaller, muted (no label) */}
+        <div className="text-xs text-gray-400 mt-0.5">
+          {formatCurrency(value2025)}
         </div>
         {/* Change */}
         <div className={`text-xs mt-0.5 ${changeTextClass}`}>
@@ -530,7 +548,7 @@ function PriceComparison() {
       {/* Summary info */}
       <div className="mt-4 text-sm text-gray-600">
         <p>
-          <strong>Legendă celulă:</strong> Prima linie = preț 2026, a doua linie = preț 2025, a treia linie = schimbare ({showPercentage ? '%' : 'MDL'})
+          <strong>Legendă celulă:</strong> Prima linie = preț 2026, a doua linie (gri) = preț 2025, a treia linie = diferență ({showPercentage ? '%' : 'MDL'})
         </p>
       </div>
     </div>
