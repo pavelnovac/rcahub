@@ -1,0 +1,56 @@
+[
+  {
+    "company_id": "acord_grup_s_a",
+    "company_name": "ACORD GRUP S.A.",
+    "is_reference": false,
+    "premiums_count": 184
+  },
+  {
+    "company_id": "asterra_grup_s_a",
+    "company_name": "ASTERRA GRUP S.A.",
+    "is_reference": false,
+    "premiums_count": 184
+  },
+  {
+    "company_id": "donaris_vienna_insurance_group_s_a",
+    "company_name": "DONARIS VIENNA INSURANCE GROUP S.A.",
+    "is_reference": false,
+    "premiums_count": 184
+  },
+  {
+    "company_id": "general_asigurari_s_a",
+    "company_name": "GENERAL ASIGURARI S.A.",
+    "is_reference": false,
+    "premiums_count": 184
+  },
+  {
+    "company_id": "grawe_carat_asigurari_s_a",
+    "company_name": "GRAWE CARAT ASIGURARI S.A.",
+    "is_reference": false,
+    "premiums_count": 184
+  },
+  {
+    "company_id": "intact_asigurari_generale_s_a",
+    "company_name": "INTACT ASIGURARI GENERALE S.A.",
+    "is_reference": false,
+    "premiums_count": 184
+  },
+  {
+    "company_id": "moldasig_s_a",
+    "company_name": "MOLDASIG S.A.",
+    "is_reference": false,
+    "premiums_count": 184
+  },
+  {
+    "company_id": "moldcargo_s_a",
+    "company_name": "MOLDCARGO S.A.",
+    "is_reference": false,
+    "premiums_count": 184
+  },
+  {
+    "company_id": "transelit_s_a",
+    "company_name": "TRANSELIT S.A.",
+    "is_reference": false,
+    "premiums_count": 184
+  }
+]

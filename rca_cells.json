@@ -1,0 +1,231 @@
+{
+  "version": "2025-11",
+  "currency": "MDL",
+  "cell_id_pattern": "{vehicle_id}_{territory_id}_{person_category_id}",
+
+  "vehicles": [
+    {
+      "vehicle_id": "A1",
+      "group": "a",
+      "group_label": "Autoturisme",
+      "description": "Cu capacitatea cilindrică a motorului până la 1200 cm³",
+      "engine_cc_min": 0,
+      "engine_cc_max": 1200
+    },
+    {
+      "vehicle_id": "A2",
+      "group": "a",
+      "group_label": "Autoturisme",
+      "description": "Cu capacitatea cilindrică a motorului între 1201 și 1600 cm³",
+      "engine_cc_min": 1201,
+      "engine_cc_max": 1600
+    },
+    {
+      "vehicle_id": "A3",
+      "group": "a",
+      "group_label": "Autoturisme",
+      "description": "Cu capacitatea cilindrică a motorului între 1601 și 2000 cm³",
+      "engine_cc_min": 1601,
+      "engine_cc_max": 2000
+    },
+    {
+      "vehicle_id": "A4",
+      "group": "a",
+      "group_label": "Autoturisme",
+      "description": "Cu capacitatea cilindrică a motorului între 2001 și 2400 cm³",
+      "engine_cc_min": 2001,
+      "engine_cc_max": 2400
+    },
+    {
+      "vehicle_id": "A5",
+      "group": "a",
+      "group_label": "Autoturisme",
+      "description": "Cu capacitatea cilindrică a motorului între 2401 și 3000 cm³ inclusiv",
+      "engine_cc_min": 2401,
+      "engine_cc_max": 3000
+    },
+    {
+      "vehicle_id": "A6",
+      "group": "a",
+      "group_label": "Autoturisme",
+      "description": "Cu capacitatea cilindrică a motorului peste 3000 cm³",
+      "engine_cc_min": 3001,
+      "engine_cc_max": null
+    },
+    {
+      "vehicle_id": "A7",
+      "group": "a",
+      "group_label": "Autoturisme",
+      "description": "Taxi (numai pentru persoane juridice)",
+      "engine_cc_min": null,
+      "engine_cc_max": null
+    },
+    {
+      "vehicle_id": "A8",
+      "group": "a",
+      "group_label": "Autoturisme",
+      "description": "Cu motor electric",
+      "engine_cc_min": null,
+      "engine_cc_max": null
+    },
+
+    {
+      "vehicle_id": "B1",
+      "group": "b",
+      "group_label": "Vehicule destinate transportului de persoane",
+      "description": "Până la 17 locuri, inclusiv al conducătorului",
+      "seats_min": 1,
+      "seats_max": 17
+    },
+    {
+      "vehicle_id": "B2",
+      "group": "b",
+      "group_label": "Vehicule destinate transportului de persoane",
+      "description": "De la 18 până la 30 locuri, inclusiv al conducătorului",
+      "seats_min": 18,
+      "seats_max": 30
+    },
+    {
+      "vehicle_id": "B3",
+      "group": "b",
+      "group_label": "Vehicule destinate transportului de persoane",
+      "description": "Cu peste 30 locuri",
+      "seats_min": 31,
+      "seats_max": null
+    },
+    {
+      "vehicle_id": "B4",
+      "group": "b",
+      "group_label": "Vehicule destinate transportului de persoane",
+      "description": "Troleibuze",
+      "seats_min": null,
+      "seats_max": null
+    },
+
+    {
+      "vehicle_id": "C1",
+      "group": "c",
+      "group_label": "Tractoare rutiere cu puterea motorului",
+      "description": "Până la 45 CP inclusiv",
+      "power_cp_min": 0,
+      "power_cp_max": 45
+    },
+    {
+      "vehicle_id": "C2",
+      "group": "c",
+      "group_label": "Tractoare rutiere cu puterea motorului",
+      "description": "De la 46 CP până la 100 CP inclusiv",
+      "power_cp_min": 46,
+      "power_cp_max": 100
+    },
+    {
+      "vehicle_id": "C3",
+      "group": "c",
+      "group_label": "Tractoare rutiere cu puterea motorului",
+      "description": "Peste 100 CP",
+      "power_cp_min": 101,
+      "power_cp_max": null
+    },
+
+    {
+      "vehicle_id": "D1",
+      "group": "d",
+      "group_label": "Camioane și alte vehicule decât cele menționate la lit. a)-c), a căror masă maximă autorizată este",
+      "description": "Până la 3 500 kg",
+      "mass_kg_min": 0,
+      "mass_kg_max": 3500
+    },
+    {
+      "vehicle_id": "D2",
+      "group": "d",
+      "group_label": "Camioane și alte vehicule decât cele menționate la lit. a)-c), a căror masă maximă autorizată este",
+      "description": "Între 3 501 și 12 000 kg inclusiv",
+      "mass_kg_min": 3501,
+      "mass_kg_max": 12000
+    },
+    {
+      "vehicle_id": "D3",
+      "group": "d",
+      "group_label": "Camioane și alte vehicule decât cele menționate la lit. a)-c), a căror masă maximă autorizată este",
+      "description": "Peste 12 000 kg",
+      "mass_kg_min": 12001,
+      "mass_kg_max": null
+    },
+
+    {
+      "vehicle_id": "E1",
+      "group": "e",
+      "group_label": "Motociclete",
+      "description": "Până la 300 cm³ inclusiv",
+      "engine_cc_min": 0,
+      "engine_cc_max": 300
+    },
+    {
+      "vehicle_id": "E2",
+      "group": "e",
+      "group_label": "Motociclete",
+      "description": "Peste 300 cm³",
+      "engine_cc_min": 301,
+      "engine_cc_max": null
+    }
+  ],
+
+  "territories": [
+    {
+      "territory_id": "CH",
+      "label": "Municipiul Chișinău, raioanele Hîncești, Orhei, Strășeni, Ialoveni, Anenii Noi și Criuleni"
+    },
+    {
+      "territory_id": "AL",
+      "label": "Alte localități"
+    }
+  ],
+
+  "person_categories": [
+    {
+      "person_category_id": "PF_AGE_LT23_EXP_LT2",
+      "person_type": "fizica",
+      "description": "Persoană fizică, vârstă < 23 ani, vechime < 2 ani",
+      "age_min": null,
+      "age_max": 23,
+      "experience_min_years": null,
+      "experience_max_years": 2
+    },
+    {
+      "person_category_id": "PF_AGE_LT23_EXP_GE2",
+      "person_type": "fizica",
+      "description": "Persoană fizică, vârstă < 23 ani, vechime ≥ 2 ani",
+      "age_min": null,
+      "age_max": 23,
+      "experience_min_years": 2,
+      "experience_max_years": null
+    },
+    {
+      "person_category_id": "PF_AGE_GE23_EXP_LT2",
+      "person_type": "fizica",
+      "description": "Persoană fizică, vârstă ≥ 23 ani, vechime < 2 ani",
+      "age_min": 23,
+      "age_max": null,
+      "experience_min_years": null,
+      "experience_max_years": 2
+    },
+    {
+      "person_category_id": "PF_AGE_GE23_EXP_GE2",
+      "person_type": "fizica",
+      "description": "Persoană fizică, vârstă ≥ 23 ani, vechime ≥ 2 ani",
+      "age_min": 23,
+      "age_max": null,
+      "experience_min_years": 2,
+      "experience_max_years": null
+    },
+    {
+      "person_category_id": "PJ",
+      "person_type": "juridica",
+      "description": "Persoană juridică",
+      "age_min": null,
+      "age_max": null,
+      "experience_min_years": null,
+      "experience_max_years": null
+    }
+  ]
+}

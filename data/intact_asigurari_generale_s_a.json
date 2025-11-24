@@ -1,0 +1,743 @@
+{
+  "company_id": "intact_asigurari_generale_s_a",
+  "company_name": "INTACT ASIGURARI GENERALE S.A.",
+  "is_reference": false,
+  "premiums": [
+    {
+      "cell_id": "A1_CH_PF_AGE_LT23_EXP_LT2",
+      "value": 3191.11
+    },
+    {
+      "cell_id": "A1_CH_PF_AGE_LT23_EXP_GE2",
+      "value": 2604.06
+    },
+    {
+      "cell_id": "A1_CH_PF_AGE_GE23_EXP_LT2",
+      "value": 1685.2
+    },
+    {
+      "cell_id": "A1_CH_PF_AGE_GE23_EXP_GE2",
+      "value": 1027.56
+    },
+    {
+      "cell_id": "A1_CH_PJ",
+      "value": 3436.44
+    },
+    {
+      "cell_id": "A1_AL_PF_AGE_LT23_EXP_LT2",
+      "value": 1756.35
+    },
+    {
+      "cell_id": "A1_AL_PF_AGE_LT23_EXP_GE2",
+      "value": 1460.75
+    },
+    {
+      "cell_id": "A1_AL_PF_AGE_GE23_EXP_LT2",
+      "value": 958.25
+    },
+    {
+      "cell_id": "A1_AL_PF_AGE_GE23_EXP_GE2",
+      "value": 584.3
+    },
+    {
+      "cell_id": "A1_AL_PJ",
+      "value": 1954.05
+    },
+    {
+      "cell_id": "A2_CH_PF_AGE_LT23_EXP_LT2",
+      "value": 3040.77
+    },
+    {
+      "cell_id": "A2_CH_PF_AGE_LT23_EXP_GE2",
+      "value": 2774.42
+    },
+    {
+      "cell_id": "A2_CH_PF_AGE_GE23_EXP_LT2",
+      "value": 1820.02
+    },
+    {
+      "cell_id": "A2_CH_PF_AGE_GE23_EXP_GE2",
+      "value": 1109.77
+    },
+    {
+      "cell_id": "A2_CH_PJ",
+      "value": 3711.36
+    },
+    {
+      "cell_id": "A2_AL_PF_AGE_LT23_EXP_LT2",
+      "value": 1729.06
+    },
+    {
+      "cell_id": "A2_AL_PF_AGE_LT23_EXP_GE2",
+      "value": 1577.61
+    },
+    {
+      "cell_id": "A2_AL_PF_AGE_GE23_EXP_LT2",
+      "value": 1034.91
+    },
+    {
+      "cell_id": "A2_AL_PF_AGE_GE23_EXP_GE2",
+      "value": 631.04
+    },
+    {
+      "cell_id": "A2_AL_PJ",
+      "value": 2110.38
+    },
+    {
+      "cell_id": "A3_CH_PF_AGE_LT23_EXP_LT2",
+      "value": 3434.94
+    },
+    {
+      "cell_id": "A3_CH_PF_AGE_LT23_EXP_GE2",
+      "value": 3134.07
+    },
+    {
+      "cell_id": "A3_CH_PF_AGE_GE23_EXP_LT2",
+      "value": 2055.95
+    },
+    {
+      "cell_id": "A3_CH_PF_AGE_GE23_EXP_GE2",
+      "value": 1253.63
+    },
+    {
+      "cell_id": "A3_CH_PJ",
+      "value": 4192.46
+    },
+    {
+      "cell_id": "A3_AL_PF_AGE_LT23_EXP_LT2",
+      "value": 1953.2
+    },
+    {
+      "cell_id": "A3_AL_PF_AGE_LT23_EXP_GE2",
+      "value": 1782.12
+    },
+    {
+      "cell_id": "A3_AL_PF_AGE_GE23_EXP_LT2",
+      "value": 1169.07
+    },
+    {
+      "cell_id": "A3_AL_PF_AGE_GE23_EXP_GE2",
+      "value": 712.85
+    },
+    {
+      "cell_id": "A3_AL_PJ",
+      "value": 2383.95
+    },
+    {
+      "cell_id": "A4_CH_PF_AGE_LT23_EXP_LT2",
+      "value": 3744.65
+    },
+    {
+      "cell_id": "A4_CH_PF_AGE_LT23_EXP_GE2",
+      "value": 3416.65
+    },
+    {
+      "cell_id": "A4_CH_PF_AGE_GE23_EXP_LT2",
+      "value": 2241.32
+    },
+    {
+      "cell_id": "A4_CH_PF_AGE_GE23_EXP_GE2",
+      "value": 1366.66
+    },
+    {
+      "cell_id": "A4_CH_PJ",
+      "value": 4570.47
+    },
+    {
+      "cell_id": "A4_AL_PF_AGE_LT23_EXP_LT2",
+      "value": 2129.31
+    },
+    {
+      "cell_id": "A4_AL_PF_AGE_LT23_EXP_GE2",
+      "value": 1942.8
+    },
+    {
+      "cell_id": "A4_AL_PF_AGE_GE23_EXP_LT2",
+      "value": 1274.48
+    },
+    {
+      "cell_id": "A4_AL_PF_AGE_GE23_EXP_GE2",
+      "value": 777.12
+    },
+    {
+      "cell_id": "A4_AL_PJ",
+      "value": 2598.89
+    },
+    {
+      "cell_id": "A5_CH_PF_AGE_LT23_EXP_LT2",
+      "value": 3881.96
+    },
+    {
+      "cell_id": "A5_CH_PF_AGE_LT23_EXP_GE2",
+      "value": 3313.89
+    },
+    {
+      "cell_id": "A5_CH_PF_AGE_GE23_EXP_LT2",
+      "value": 2173.91
+    },
+    {
+      "cell_id": "A5_CH_PF_AGE_GE23_EXP_GE2",
+      "value": 1325.56
+    },
+    {
+      "cell_id": "A5_CH_PJ",
+      "value": 4433.01
+    },
+    {
+      "cell_id": "A5_AL_PF_AGE_LT23_EXP_LT2",
+      "value": 2136.59
+    },
+    {
+      "cell_id": "A5_AL_PF_AGE_LT23_EXP_GE2",
+      "value": 1884.37
+    },
+    {
+      "cell_id": "A5_AL_PF_AGE_GE23_EXP_LT2",
+      "value": 1236.15
+    },
+    {
+      "cell_id": "A5_AL_PF_AGE_GE23_EXP_GE2",
+      "value": 753.75
+    },
+    {
+      "cell_id": "A5_AL_PJ",
+      "value": 2520.73
+    },
+    {
+      "cell_id": "A6_CH_PF_AGE_LT23_EXP_LT2",
+      "value": 4375.43
+    },
+    {
+      "cell_id": "A6_CH_PF_AGE_LT23_EXP_GE2",
+      "value": 3776.3
+    },
+    {
+      "cell_id": "A6_CH_PF_AGE_GE23_EXP_LT2",
+      "value": 2477.25
+    },
+    {
+      "cell_id": "A6_CH_PF_AGE_GE23_EXP_GE2",
+      "value": 1510.52
+    },
+    {
+      "cell_id": "A6_CH_PJ",
+      "value": 5051.57
+    },
+    {
+      "cell_id": "A6_AL_PF_AGE_LT23_EXP_LT2",
+      "value": 2408.18
+    },
+    {
+      "cell_id": "A6_AL_PF_AGE_LT23_EXP_GE2",
+      "value": 2147.31
+    },
+    {
+      "cell_id": "A6_AL_PF_AGE_GE23_EXP_LT2",
+      "value": 1408.63
+    },
+    {
+      "cell_id": "A6_AL_PF_AGE_GE23_EXP_GE2",
+      "value": 858.92
+    },
+    {
+      "cell_id": "A6_AL_PJ",
+      "value": 2872.46
+    },
+    {
+      "cell_id": "A7_CH_PJ",
+      "value": 3436.44
+    },
+    {
+      "cell_id": "A7_AL_PJ",
+      "value": 1954.05
+    },
+    {
+      "cell_id": "A8_CH_PF_AGE_LT23_EXP_LT2",
+      "value": 5152.41
+    },
+    {
+      "cell_id": "A8_CH_PF_AGE_LT23_EXP_GE2",
+      "value": 4701.1
+    },
+    {
+      "cell_id": "A8_CH_PF_AGE_GE23_EXP_LT2",
+      "value": 3083.92
+    },
+    {
+      "cell_id": "A8_CH_PF_AGE_GE23_EXP_GE2",
+      "value": 1880.44
+    },
+    {
+      "cell_id": "A8_CH_PJ",
+      "value": 6288.69
+    },
+    {
+      "cell_id": "A8_AL_PF_AGE_LT23_EXP_LT2",
+      "value": 2929.8
+    },
+    {
+      "cell_id": "A8_AL_PF_AGE_LT23_EXP_GE2",
+      "value": 2673.18
+    },
+    {
+      "cell_id": "A8_AL_PF_AGE_GE23_EXP_LT2",
+      "value": 1753.6
+    },
+    {
+      "cell_id": "A8_AL_PF_AGE_GE23_EXP_GE2",
+      "value": 1069.27
+    },
+    {
+      "cell_id": "A8_AL_PJ",
+      "value": 3575.92
+    },
+    {
+      "cell_id": "B1_CH_PF_AGE_LT23_EXP_LT2",
+      "value": 3158.21
+    },
+    {
+      "cell_id": "B1_CH_PF_AGE_LT23_EXP_GE2",
+      "value": 2577.22
+    },
+    {
+      "cell_id": "B1_CH_PF_AGE_GE23_EXP_LT2",
+      "value": 1653.59
+    },
+    {
+      "cell_id": "B1_CH_PF_AGE_GE23_EXP_GE2",
+      "value": 998.11
+    },
+    {
+      "cell_id": "B1_CH_PJ",
+      "value": 2779.6
+    },
+    {
+      "cell_id": "B1_AL_PF_AGE_LT23_EXP_LT2",
+      "value": 1738.24
+    },
+    {
+      "cell_id": "B1_AL_PF_AGE_LT23_EXP_GE2",
+      "value": 1418.47
+    },
+    {
+      "cell_id": "B1_AL_PF_AGE_GE23_EXP_LT2",
+      "value": 910.12
+    },
+    {
+      "cell_id": "B1_AL_PF_AGE_GE23_EXP_GE2",
+      "value": 549.35
+    },
+    {
+      "cell_id": "B1_AL_PJ",
+      "value": 1529.86
+    },
+    {
+      "cell_id": "B2_CH_PF_AGE_LT23_EXP_LT2",
+      "value": 5132.09
+    },
+    {
+      "cell_id": "B2_CH_PF_AGE_LT23_EXP_GE2",
+      "value": 4187.98
+    },
+    {
+      "cell_id": "B2_CH_PF_AGE_GE23_EXP_LT2",
+      "value": 2687.08
+    },
+    {
+      "cell_id": "B2_CH_PF_AGE_GE23_EXP_GE2",
+      "value": 1621.93
+    },
+    {
+      "cell_id": "B2_CH_PJ",
+      "value": 4516.85
+    },
+    {
+      "cell_id": "B2_AL_PF_AGE_LT23_EXP_LT2",
+      "value": 2824.64
+    },
+    {
+      "cell_id": "B2_AL_PF_AGE_LT23_EXP_GE2",
+      "value": 2305.01
+    },
+    {
+      "cell_id": "B2_AL_PF_AGE_GE23_EXP_LT2",
+      "value": 1478.94
+    },
+    {
+      "cell_id": "B2_AL_PF_AGE_GE23_EXP_GE2",
+      "value": 892.69
+    },
+    {
+      "cell_id": "B2_AL_PJ",
+      "value": 2486.02
+    },
+    {
+      "cell_id": "B3_CH_PF_AGE_LT23_EXP_LT2",
+      "value": 10264.18
+    },
+    {
+      "cell_id": "B3_CH_PF_AGE_LT23_EXP_GE2",
+      "value": 8375.96
+    },
+    {
+      "cell_id": "B3_CH_PF_AGE_GE23_EXP_LT2",
+      "value": 5374.17
+    },
+    {
+      "cell_id": "B3_CH_PF_AGE_GE23_EXP_GE2",
+      "value": 3243.87
+    },
+    {
+      "cell_id": "B3_CH_PJ",
+      "value": 10515.51
+    },
+    {
+      "cell_id": "B3_AL_PF_AGE_LT23_EXP_LT2",
+      "value": 5649.28
+    },
+    {
+      "cell_id": "B3_AL_PF_AGE_LT23_EXP_GE2",
+      "value": 4610.02
+    },
+    {
+      "cell_id": "B3_AL_PF_AGE_GE23_EXP_LT2",
+      "value": 2957.88
+    },
+    {
+      "cell_id": "B3_AL_PF_AGE_GE23_EXP_GE2",
+      "value": 1787.96
+    },
+    {
+      "cell_id": "B3_AL_PJ",
+      "value": 5979.41
+    },
+    {
+      "cell_id": "B4_CH_PJ",
+      "value": 24728.9
+    },
+    {
+      "cell_id": "B4_AL_PJ",
+      "value": 14061.53
+    },
+    {
+      "cell_id": "C1_CH_PF_AGE_LT23_EXP_LT2",
+      "value": 822.45
+    },
+    {
+      "cell_id": "C1_CH_PF_AGE_LT23_EXP_GE2",
+      "value": 671.15
+    },
+    {
+      "cell_id": "C1_CH_PF_AGE_GE23_EXP_LT2",
+      "value": 430.62
+    },
+    {
+      "cell_id": "C1_CH_PF_AGE_GE23_EXP_GE2",
+      "value": 259.93
+    },
+    {
+      "cell_id": "C1_CH_PJ",
+      "value": 842.27
+    },
+    {
+      "cell_id": "C1_AL_PF_AGE_LT23_EXP_LT2",
+      "value": 452.67
+    },
+    {
+      "cell_id": "C1_AL_PF_AGE_LT23_EXP_GE2",
+      "value": 369.39
+    },
+    {
+      "cell_id": "C1_AL_PF_AGE_GE23_EXP_LT2",
+      "value": 239.56
+    },
+    {
+      "cell_id": "C1_AL_PF_AGE_GE23_EXP_GE2",
+      "value": 146.08
+    },
+    {
+      "cell_id": "C1_AL_PJ",
+      "value": 478.94
+    },
+    {
+      "cell_id": "C2_CH_PF_AGE_LT23_EXP_LT2",
+      "value": 559.27
+    },
+    {
+      "cell_id": "C2_CH_PF_AGE_LT23_EXP_GE2",
+      "value": 456.38
+    },
+    {
+      "cell_id": "C2_CH_PF_AGE_GE23_EXP_LT2",
+      "value": 292.82
+    },
+    {
+      "cell_id": "C2_CH_PF_AGE_GE23_EXP_GE2",
+      "value": 176.75
+    },
+    {
+      "cell_id": "C2_CH_PJ",
+      "value": 572.74
+    },
+    {
+      "cell_id": "C2_AL_PF_AGE_LT23_EXP_LT2",
+      "value": 307.81
+    },
+    {
+      "cell_id": "C2_AL_PF_AGE_LT23_EXP_GE2",
+      "value": 251.19
+    },
+    {
+      "cell_id": "C2_AL_PF_AGE_GE23_EXP_LT2",
+      "value": 162.9
+    },
+    {
+      "cell_id": "C2_AL_PF_AGE_GE23_EXP_GE2",
+      "value": 99.33
+    },
+    {
+      "cell_id": "C2_AL_PJ",
+      "value": 325.68
+    },
+    {
+      "cell_id": "C3_CH_PF_AGE_LT23_EXP_LT2",
+      "value": 592.16
+    },
+    {
+      "cell_id": "C3_CH_PF_AGE_LT23_EXP_GE2",
+      "value": 483.23
+    },
+    {
+      "cell_id": "C3_CH_PF_AGE_GE23_EXP_LT2",
+      "value": 310.05
+    },
+    {
+      "cell_id": "C3_CH_PF_AGE_GE23_EXP_GE2",
+      "value": 187.15
+    },
+    {
+      "cell_id": "C3_CH_PJ",
+      "value": 606.43
+    },
+    {
+      "cell_id": "C3_AL_PF_AGE_LT23_EXP_LT2",
+      "value": 325.92
+    },
+    {
+      "cell_id": "C3_AL_PF_AGE_LT23_EXP_GE2",
+      "value": 265.96
+    },
+    {
+      "cell_id": "C3_AL_PF_AGE_GE23_EXP_LT2",
+      "value": 172.49
+    },
+    {
+      "cell_id": "C3_AL_PF_AGE_GE23_EXP_GE2",
+      "value": 105.17
+    },
+    {
+      "cell_id": "C3_AL_PJ",
+      "value": 344.83
+    },
+    {
+      "cell_id": "D1_CH_PF_AGE_LT23_EXP_LT2",
+      "value": 3322.7
+    },
+    {
+      "cell_id": "D1_CH_PF_AGE_LT23_EXP_GE2",
+      "value": 2711.45
+    },
+    {
+      "cell_id": "D1_CH_PF_AGE_GE23_EXP_LT2",
+      "value": 1739.71
+    },
+    {
+      "cell_id": "D1_CH_PF_AGE_GE23_EXP_GE2",
+      "value": 1050.1
+    },
+    {
+      "cell_id": "D1_CH_PJ",
+      "value": 3402.75
+    },
+    {
+      "cell_id": "D1_AL_PF_AGE_LT23_EXP_LT2",
+      "value": 1828.77
+    },
+    {
+      "cell_id": "D1_AL_PF_AGE_LT23_EXP_GE2",
+      "value": 1492.35
+    },
+    {
+      "cell_id": "D1_AL_PF_AGE_GE23_EXP_LT2",
+      "value": 967.84
+    },
+    {
+      "cell_id": "D1_AL_PF_AGE_GE23_EXP_GE2",
+      "value": 590.14
+    },
+    {
+      "cell_id": "D1_AL_PJ",
+      "value": 1934.9
+    },
+    {
+      "cell_id": "D2_CH_PF_AGE_LT23_EXP_LT2",
+      "value": 4342.54
+    },
+    {
+      "cell_id": "D2_CH_PF_AGE_LT23_EXP_GE2",
+      "value": 3543.67
+    },
+    {
+      "cell_id": "D2_CH_PF_AGE_GE23_EXP_LT2",
+      "value": 2273.69
+    },
+    {
+      "cell_id": "D2_CH_PF_AGE_GE23_EXP_GE2",
+      "value": 1372.41
+    },
+    {
+      "cell_id": "D2_CH_PJ",
+      "value": 4447.16
+    },
+    {
+      "cell_id": "D2_AL_PF_AGE_LT23_EXP_LT2",
+      "value": 2390.08
+    },
+    {
+      "cell_id": "D2_AL_PF_AGE_LT23_EXP_GE2",
+      "value": 1950.39
+    },
+    {
+      "cell_id": "D2_AL_PF_AGE_GE23_EXP_LT2",
+      "value": 1264.89
+    },
+    {
+      "cell_id": "D2_AL_PF_AGE_GE23_EXP_GE2",
+      "value": 771.28
+    },
+    {
+      "cell_id": "D2_AL_PJ",
+      "value": 2528.78
+    },
+    {
+      "cell_id": "D3_CH_PF_AGE_LT23_EXP_LT2",
+      "value": 5362.37
+    },
+    {
+      "cell_id": "D3_CH_PF_AGE_LT23_EXP_GE2",
+      "value": 4375.9
+    },
+    {
+      "cell_id": "D3_CH_PF_AGE_GE23_EXP_LT2",
+      "value": 2807.66
+    },
+    {
+      "cell_id": "D3_CH_PF_AGE_GE23_EXP_GE2",
+      "value": 1694.71
+    },
+    {
+      "cell_id": "D3_CH_PJ",
+      "value": 5491.57
+    },
+    {
+      "cell_id": "D3_AL_PF_AGE_LT23_EXP_LT2",
+      "value": 2951.38
+    },
+    {
+      "cell_id": "D3_AL_PF_AGE_LT23_EXP_GE2",
+      "value": 2408.44
+    },
+    {
+      "cell_id": "D3_AL_PF_AGE_GE23_EXP_LT2",
+      "value": 1561.95
+    },
+    {
+      "cell_id": "D3_AL_PF_AGE_GE23_EXP_GE2",
+      "value": 952.41
+    },
+    {
+      "cell_id": "D3_AL_PJ",
+      "value": 3122.66
+    },
+    {
+      "cell_id": "E1_CH_PF_AGE_LT23_EXP_LT2",
+      "value": 361.88
+    },
+    {
+      "cell_id": "E1_CH_PF_AGE_LT23_EXP_GE2",
+      "value": 295.31
+    },
+    {
+      "cell_id": "E1_CH_PF_AGE_GE23_EXP_LT2",
+      "value": 189.47
+    },
+    {
+      "cell_id": "E1_CH_PF_AGE_GE23_EXP_GE2",
+      "value": 114.37
+    },
+    {
+      "cell_id": "E1_CH_PJ",
+      "value": 303.22
+    },
+    {
+      "cell_id": "E1_AL_PF_AGE_LT23_EXP_LT2",
+      "value": 199.17
+    },
+    {
+      "cell_id": "E1_AL_PF_AGE_LT23_EXP_GE2",
+      "value": 162.53
+    },
+    {
+      "cell_id": "E1_AL_PF_AGE_GE23_EXP_LT2",
+      "value": 104.28
+    },
+    {
+      "cell_id": "E1_AL_PF_AGE_GE23_EXP_GE2",
+      "value": 62.95
+    },
+    {
+      "cell_id": "E1_AL_PJ",
+      "value": 172.42
+    },
+    {
+      "cell_id": "E2_CH_PF_AGE_LT23_EXP_LT2",
+      "value": 957.28
+    },
+    {
+      "cell_id": "E2_CH_PF_AGE_LT23_EXP_GE2",
+      "value": 873.43
+    },
+    {
+      "cell_id": "E2_CH_PF_AGE_GE23_EXP_LT2",
+      "value": 572.97
+    },
+    {
+      "cell_id": "E2_CH_PF_AGE_GE23_EXP_GE2",
+      "value": 349.37
+    },
+    {
+      "cell_id": "E2_CH_PJ",
+      "value": 1145.48
+    },
+    {
+      "cell_id": "E2_AL_PF_AGE_LT23_EXP_LT2",
+      "value": 544.33
+    },
+    {
+      "cell_id": "E2_AL_PF_AGE_LT23_EXP_GE2",
+      "value": 496.66
+    },
+    {
+      "cell_id": "E2_AL_PF_AGE_GE23_EXP_LT2",
+      "value": 325.81
+    },
+    {
+      "cell_id": "E2_AL_PF_AGE_GE23_EXP_GE2",
+      "value": 198.66
+    },
+    {
+      "cell_id": "E2_AL_PJ",
+      "value": 651.35
+    }
+  ]
+}
