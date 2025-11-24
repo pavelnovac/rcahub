@@ -286,11 +286,25 @@ function PriceComparison() {
     )
   }
 
-  // Get value for a specific company
+  // Get value for a specific company by ID
   const getCompanyValue = (cellId, companies, companyId) => {
     const company = companies.find(c => c.company_id === companyId)
     if (!company) return null
     return getPremiumValue(company, cellId)
+  }
+
+  // Get value for a company by name (for cross-year matching)
+  const getCompanyValueByName = (cellId, companies, companyName) => {
+    const company = companies.find(c => c.company_name === companyName)
+    if (!company) return null
+    return getPremiumValue(company, cellId)
+  }
+
+  // Get selected company name
+  const getSelectedCompanyName = () => {
+    if (selectedCompany === 'min') return null
+    const company = companies2025.find(c => c.company_id === selectedCompany)
+    return company?.company_name || null
   }
 
   // Render comparison cell with all info in one cell
@@ -304,9 +318,10 @@ function PriceComparison() {
       value2025 = getMinValueAndCompany(cellId, companies2025).value
       value2026 = getMinValueAndCompany(cellId, companies2026).value
     } else {
-      // Show values for selected company
-      value2025 = getCompanyValue(cellId, companies2025, selectedCompany)
-      value2026 = getCompanyValue(cellId, companies2026, selectedCompany)
+      // Show values for selected company - match by name since IDs differ between years
+      const companyName = getSelectedCompanyName()
+      value2025 = getCompanyValueByName(cellId, companies2025, companyName)
+      value2026 = getCompanyValueByName(cellId, companies2026, companyName)
     }
     
     const comparison = getComparison(value2025, value2026)
