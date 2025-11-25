@@ -6,7 +6,7 @@ function PremiumsTable() {
   const [rcaCells, setRcaCells] = useState(null)
   const [selectedVehicleGroup, setSelectedVehicleGroup] = useState('all')
   const [selectedCompany, setSelectedCompany] = useState('min') // 'min' pentru valori minime, sau company_id
-  const [selectedYear, setSelectedYear] = useState(2025) // Default year
+  const [selectedYear, setSelectedYear] = useState(2026) // Default year
   const [availableYears, setAvailableYears] = useState([])
   const [isLoadingData, setIsLoadingData] = useState(false)
   const [loadError, setLoadError] = useState(null)
