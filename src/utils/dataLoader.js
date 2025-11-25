@@ -138,7 +138,9 @@ export function getPremiumValue(company, cellId) {
  */
 export async function loadCompaniesFromFile() {
   try {
-    const response = await fetch(`${baseUrl}all_companies.json`)
+    // Add cache-busting to force fresh data fetch
+    const cacheBuster = `?t=${Date.now()}`
+    const response = await fetch(`${baseUrl}all_companies.json${cacheBuster}`)
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
@@ -170,7 +172,9 @@ export async function loadCompaniesFromFile() {
  */
 export async function loadCompaniesFromFileByYear(year, fileName = 'all_companies.json') {
   try {
-    const response = await fetch(`${baseUrl}${fileName}`)
+    // Add cache-busting to force fresh data fetch
+    const cacheBuster = `?t=${Date.now()}`
+    const response = await fetch(`${baseUrl}${fileName}${cacheBuster}`)
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
