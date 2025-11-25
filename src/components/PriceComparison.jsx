@@ -190,6 +190,19 @@ function PriceComparison() {
     return vehicle.description || vehicle.vehicle_id
   }
 
+  // Company priority for tie-breaking (lower index = higher priority)
+  const companyPriority = {
+    'MOLDASIG S.A.': 1,
+    'ACORD GRUP S.A.': 2,
+    'GRAWE CARAT ASIGURARI S.A.': 3,
+    'DONARIS VIENNA INSURANCE GROUP S.A.': 4,
+    'INTACT ASIGURARI GENERALE S.A.': 5
+  }
+
+  const getCompanyPriority = (company) => {
+    return companyPriority[company?.company_name] || 999
+  }
+
   const getMinValueAndCompany = (cellId, companies) => {
     let minValue = Infinity
     let minCompany = null
@@ -198,9 +211,16 @@ function PriceComparison() {
       if (company.is_reference) return
       
       const value = getPremiumValue(company, cellId)
-      if (value !== null && value < minValue) {
-        minValue = value
-        minCompany = company
+      if (value !== null) {
+        if (value < minValue) {
+          minValue = value
+          minCompany = company
+        } else if (value === minValue) {
+          // Tie-breaker: prefer company with higher priority (lower number)
+          if (getCompanyPriority(company) < getCompanyPriority(minCompany)) {
+            minCompany = company
+          }
+        }
       }
     })
 
