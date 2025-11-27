@@ -23,6 +23,40 @@ dist-ssr
 *.sln
 *.sw?
 
+# Order data with personal information
+data/omnis_public_app_rca.json
+data/omnis_public_app_green_card.json
+public/data/omnis_public_app_rca.json
+
+# Savings reports (computed data)
+data/savings_report.csv
+data/savings_report.json
+data/savings_report_decreased.csv
+data/savings_report_decreased.json
+data/savings_report_increased.csv
+data/savings_report_increased.json
+data/green_card_savings_report.csv
+data/green_card_savings_report.json
+data/green_card_savings_report_decreased.csv
+data/green_card_savings_report_decreased.json
+data/green_card_savings_report_increased.csv
+data/green_card_savings_report_increased.json
+public/data/savings_report.json
+public/data/savings_report_decreased.json
+public/data/savings_report_increased.json
+public/data/green_card_savings_report.json
+public/data/green_card_savings_report_decreased.json
+public/data/green_card_savings_report_increased.json
+
+# Savings reports pages
+savings-report.html
+public/savings-report.html
+public/green-card-savings-report.html
+
+
+
+
+
 
 
 

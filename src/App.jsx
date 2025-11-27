@@ -1,5 +1,6 @@
 import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import PremiumsTable from './components/PremiumsTable'
+import TopCheapestTable from './components/TopCheapestTable'
 import Settings from './components/Settings'
 import PriceComparison from './components/PriceComparison'
 
@@ -27,6 +28,16 @@ function App() {
                   Rate de Referință
                 </Link>
                 <Link
+                  to="/top-cheapest"
+                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                    location.pathname === '/top-cheapest'
+                      ? 'border-blue-500 text-gray-900'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  Top 3 Prețuri
+                </Link>
+                <Link
                   to="/comparison"
                   className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
                     location.pathname === '/comparison'
@@ -52,9 +63,10 @@ function App() {
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <main className={location.pathname === '/top-cheapest' ? 'py-6 px-4' : 'max-w-7xl mx-auto py-6 sm:px-6 lg:px-8'}>
         <Routes>
           <Route path="/" element={<PremiumsTable />} />
+          <Route path="/top-cheapest" element={<TopCheapestTable />} />
           <Route path="/comparison" element={<PriceComparison />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>

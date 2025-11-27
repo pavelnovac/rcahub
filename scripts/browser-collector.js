@@ -5,6 +5,8 @@
  * IMPORTANT: Colectează datele doar pentru Bonus Malus clasa 7 (coeficient 1)
  * Nu modifică câmpul Bonus Malus din formular - rămâne la clasa 7
  * 
+ * CORECTAT: Acum colectează corect prețurile pentru Taxi și toate tipurile de vehicule
+ * 
  * INSTRUCȚIUNI:
  * 1. Deschide https://rca.bnm.md/online în browser
  * 2. Click pe "Calculează acum" pentru a deschide calculatorul
@@ -17,9 +19,13 @@
   'use strict';
 
   // Configurație
-  const DELAY_BETWEEN_CHANGES = 1000; // 2 secunde între modificări
-  const DELAY_AFTER_CALCULATION = 1000; // 3 secunde după calcul
+  const DELAY_BETWEEN_CHANGES = 1000; // 1 secundă între modificări
+  const DELAY_AFTER_CALCULATION = 1500; // 1.5 secunde după calcul
   const STORAGE_KEY = 'rca_bnm_premiums_collected';
+  
+  // Progress tracking
+  let savedCount = 0;
+  let totalCombinations = 0;
 
   // Mapare pentru categorii de persoane
   const PERSON_CATEGORIES = {
@@ -44,7 +50,7 @@
     'A4': { category: 1, subcategory: 4 }, // Autoturisme, între 2001-2400 cm3
     'A5': { category: 1, subcategory: 5 }, // Autoturisme, între 2401-3000 cm3
     'A6': { category: 1, subcategory: 6 }, // Autoturisme, Peste 3000 cm3
-    'A7': { category: 1, subcategory: 1, utilizare: 2 }, // Autoturisme, Taxi
+    'A7': { category: 1, subcategory: 1, utilizare: 2 }, // Autoturisme, Taxi (doar pentru persoane juridice)
     'A8': { category: 1, subcategory: 23 }, // Autoturisme, Cu motor electric
     'B1': { category: 2, subcategory: 9 }, // Transport de persoane, Microbuze 10-17 persoane
     'B2': { category: 2, subcategory: 10 }, // Transport de persoane, Autobuze 18-30 persoane
@@ -60,12 +66,48 @@
     'E2': { category: 5, subcategory: 21 }  // Motociclete, Peste 300 cm3
   };
 
+  // Moduri de utilizare
+  const USAGE_MODES = {
+    'NORMAL': 1,  // Mod obișnuit
+    'TAXI': 2     // Taxi
+  };
+
   // Bonus Malus - doar clasa 7 (coeficient 1, nu influențează prețul)
   const BONUS_MALUS_CLASS = 7;
 
   // Funcție pentru așteptare
   function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // Funcție pentru a găsi ID-ul corect al câmpului de utilizare
+  function findUsageModeElementId() {
+    // Încearcă ID-uri comune
+    const possibleIds = ['u', 'ut', 'utilizare', 'auto_utilizare', 'usage'];
+    
+    for (const id of possibleIds) {
+      const $el = $(`#${id}`);
+      if ($el.length > 0 && $el.is('select')) {
+        console.log(`[FOUND] Element utilizare găsit: #${id}`);
+        return id;
+      }
+    }
+    
+    // Dacă nu găsește, caută după label sau placeholder
+    const $label = $('label:contains("Mod"), label:contains("Utilizare")');
+    if ($label.length > 0) {
+      const $input = $label.closest('.form-group, .form-row, div').find('select');
+      if ($input.length > 0) {
+        const id = $input.attr('id');
+        if (id) {
+          console.log(`[FOUND] Element utilizare găsit prin label: #${id}`);
+          return id;
+        }
+      }
+    }
+    
+    console.warn('[WARN] Nu s-a găsit elementul pentru modul de utilizare. Încearcă manual să identifici ID-ul.');
+    return null;
   }
 
   // Funcție pentru a seta valoarea unui select2
@@ -129,6 +171,22 @@
     return true; // S-a făcut modificare
   }
 
+  // Funcție pentru a seta modul de utilizare (Mod obișnuit sau Taxi)
+  async function setUsageMode(usageMode, usageElementId = null) {
+    if (!usageElementId) {
+      usageElementId = findUsageModeElementId();
+      if (!usageElementId) {
+        console.warn('[WARN] Nu s-a putut găsi elementul pentru modul de utilizare');
+        return false;
+      }
+    }
+    
+    const usageLabel = usageMode === USAGE_MODES.TAXI ? 'Taxi' : 'Mod obișnuit';
+    console.log(`[USAGE] Setare mod utilizare: ${usageLabel} (${usageMode})`);
+    
+    return await setSelect2Value(usageElementId, usageMode, usageLabel);
+  }
+
   // Funcție pentru a seta categoria vehiculului și subcategoria
   async function setVehicleCategory(category, subcategory, utilizare = null, vehicleId = '') {
     console.log(`[VEHICLE] Setare vehicul: categoria=${category}, subcategoria=${subcategory}${vehicleId ? ' (' + vehicleId + ')' : ''}`);
@@ -160,11 +218,16 @@
     }
     
     // Dacă e necesar, setează modul de utilizare (pentru Taxi)
-    if (utilizare && $('#auto_utilizare').length) {
-      $('#auto_utilizare').show();
-      await setSelect2Value('auto_utilizare', utilizare, 'Taxi');
-    } else if ($('#auto_utilizare').length) {
-      $('#auto_utilizare').hide();
+    // IMPORTANT: Modul de utilizare trebuie setat DUPĂ ce s-a setat subcategoria
+    if (utilizare) {
+      await sleep(300); // Așteaptă ca subcategoria să se actualizeze
+      const usageElementId = findUsageModeElementId();
+      if (usageElementId) {
+        console.log(`[VEHICLE] Setare mod utilizare: Taxi`);
+        await setUsageMode(utilizare, usageElementId);
+      } else {
+        console.warn(`[WARN] Nu s-a găsit elementul pentru modul de utilizare. Taxi poate să nu fie setat corect.`);
+      }
     }
     
     await sleep(300);
@@ -221,9 +284,10 @@
 
   // Funcție pentru completarea formularului și extragerea prețurilor
   async function collectDataForConfig(config) {
-    const { vehicle, territory, personCategory } = config;
+    const { vehicle, territory, personCategory, usageMode = null } = config;
     
-    console.log(`\n[START] Colectare: ${vehicle} - ${territory} - ${personCategory}`);
+    const usageLabel = usageMode === USAGE_MODES.TAXI ? 'TAXI' : 'NORMAL';
+    console.log(`\n[START] Colectare: ${vehicle} - ${territory} - ${personCategory} - ${usageLabel}`);
     const startTime = Date.now();
     
     const personConfig = PERSON_CATEGORIES[personCategory];
@@ -304,12 +368,12 @@
         await sleep(300);
       }
       
-      // Setează categoria și subcategoria vehiculului
+      // Setează categoria și subcategoria vehiculului (și modul de utilizare dacă e cazul)
       console.log(`[STEP 7] Setare vehicul: ${vehicle}`);
       const vehicleChanged = await setVehicleCategory(
         vehicleConfig.category,
         vehicleConfig.subcategory,
-        vehicleConfig.utilizare,
+        vehicleConfig.utilizare || usageMode || null,
         vehicle
       );
       if (vehicleChanged) {
@@ -339,7 +403,7 @@
       const prices = extractPrices();
       
       if (Object.keys(prices).length === 0) {
-        console.warn(`[WARN] Nu s-au găsit prețuri pentru ${vehicle} - ${territory} - ${personCategory}`);
+        console.warn(`[WARN] Nu s-au găsit prețuri pentru ${vehicle} - ${territory} - ${personCategory} - ${usageLabel}`);
         console.log(`[DEBUG] Verificare elemente prețuri în DOM...`);
         const priceElements = $('[id^="puls"]');
         console.log(`[DEBUG] Găsite ${priceElements.length} elemente cu prețuri`);
@@ -352,7 +416,7 @@
       
       return prices;
     } catch (error) {
-      console.error(`[ERROR] Eroare la colectarea datelor pentru ${vehicle} - ${territory} - ${personCategory}:`, error);
+      console.error(`[ERROR] Eroare la colectarea datelor pentru ${vehicle} - ${territory} - ${personCategory} - ${usageLabel}:`, error);
       console.error(`[ERROR] Stack:`, error.stack);
       return null;
     }
@@ -415,10 +479,10 @@
       });
     });
     
-    console.log('=== Progres Colectare ===');
-    console.log(`Bonus Malus: Clasa 7 (coeficient 1)`);
-    console.log(`Celule procesate: ${totalCells}`);
-    console.log(`Total prețuri colectate: ${totalPrices}`);
+    console.log('=== 📊 Progres Colectare ===');
+    console.log(`📋 Bonus Malus: Clasa 7 (coeficient 1)`);
+    console.log(`📦 Celule procesate: ${totalCells}`);
+    console.log(`💰 Total prețuri colectate: ${totalPrices}`);
   }
 
   // Funcția principală
@@ -437,8 +501,15 @@
       return;
     }
     
-    // Încarcă configurația din rca_cells.json (va trebui să fie disponibilă)
-    // Pentru moment, folosim configurația hardcodată
+    // Identifică elementul pentru modul de utilizare
+    const usageElementId = findUsageModeElementId();
+    if (!usageElementId) {
+      console.warn('[WARN] Nu s-a găsit elementul pentru modul de utilizare. Taxi nu va fi colectat.');
+    } else {
+      console.log(`[INFO] Element utilizare identificat: #${usageElementId}`);
+    }
+    
+    // Vehicule
     const vehicles = [
       { vehicle_id: 'A1' }, { vehicle_id: 'A2' }, { vehicle_id: 'A3' }, { vehicle_id: 'A4' },
       { vehicle_id: 'A5' }, { vehicle_id: 'A6' }, { vehicle_id: 'A7' }, { vehicle_id: 'A8' },
@@ -463,20 +534,29 @@
     ];
     
     const results = {};
-    let totalCombinations = 0;
     let processedCombinations = 0;
     
-    // Calculează totalul de combinații (doar pentru Bonus Malus 7)
+    // Reset progress counters
+    savedCount = 0;
+    totalCombinations = 0;
+    
+    // Calculează totalul de combinații
+    // A7 (Taxi): doar pentru persoane juridice (PJ)
+    // B4 (Troleibuze): doar pentru persoane juridice (PJ)
+    // Celelalte vehicule: pentru toate categoriile
     for (const vehicle of vehicles) {
       if (vehicle.vehicle_id === 'A7' || vehicle.vehicle_id === 'B4') {
-        totalCombinations += territories.length; // Doar PJ
+        // Taxi și Troleibuze: doar PJ
+        totalCombinations += territories.length;
       } else {
+        // Alte vehicule: pentru toate categoriile
         totalCombinations += territories.length * personCategories.length;
       }
     }
     
-    console.log(`Total combinații de procesat: ${totalCombinations}`);
-    console.log(`Bonus Malus: Clasa 7 (coeficient 1 - nu influențează prețul)`);
+    console.log(`🎯 Total combinații de procesat: ${totalCombinations}`);
+    console.log(`📋 Bonus Malus: Clasa 7 (coeficient 1 - nu influențează prețul)`);
+    console.log(`🚕 Taxi (A7) va fi colectat doar pentru persoane juridice (PJ)`);
     
     // Verifică că Bonus Malus este setat la 7
     const currentBM = $('#bm').val();
@@ -486,7 +566,7 @@
       await sleep(DELAY_BETWEEN_CHANGES);
     }
     
-    // Iterează prin toate combinațiile (doar pentru Bonus Malus 7, CH și AL)
+    // Iterează prin toate combinațiile
     results[`BM_${BONUS_MALUS_CLASS}`] = {};
     
     console.log(`[CONFIG] Vehicule: ${vehicles.length}, Teritorii: ${territories.length} (CH, AL), Categorii persoane: ${personCategories.length}`);
@@ -496,7 +576,7 @@
       console.log(`\n[VEHICLE ${vehicleIndex + 1}/${vehicles.length}] Procesare ${vehicle.vehicle_id}`);
       
       if (vehicle.vehicle_id === 'A7' || vehicle.vehicle_id === 'B4') {
-        // Doar pentru persoane juridice
+        // Taxi (A7) și Troleibuze (B4): doar pentru persoane juridice
         for (const territory of territories) {
           const config = {
             vehicle: vehicle.vehicle_id,
@@ -510,22 +590,26 @@
           if (prices && Object.keys(prices).length > 0) {
             const cellId = `${vehicle.vehicle_id}_${territory.territory_id}_PJ`;
             results[`BM_${BONUS_MALUS_CLASS}`][cellId] = prices;
-            console.log(`[SAVED] ${cellId}: ${Object.keys(prices).length} companii`);
+            savedCount++;
+            
+            const progress = Math.round((savedCount / totalCombinations) * 100);
+            console.log(`✅ Saved combination: ${vehicle.vehicle_id} | ${territory.territory_id} | PJ`);
+            console.log(`📊 Progress: ${progress}% (${savedCount}/${totalCombinations}) | Companies: ${Object.keys(prices).length}`);
             
             // Salvează progresul periodic
             if (processedCombinations % 10 === 0) {
               saveData(results);
-              console.log(`[PROGRESS] ${processedCombinations}/${totalCombinations} (${Math.round(processedCombinations/totalCombinations*100)}%)`);
+              console.log(`💾 Auto-saved progress at ${progress}%`);
             }
           } else {
-            console.warn(`[SKIP] Nu s-au salvat date pentru ${vehicle.vehicle_id} - ${territory.territory_id} - PJ`);
+            console.warn(`⚠️ [SKIP] Nu s-au salvat date pentru ${vehicle.vehicle_id} - ${territory.territory_id} - PJ`);
           }
           
-          // Pauză mai scurtă între combinații dacă nu s-au făcut modificări
+          // Pauză între combinații
           await sleep(1000);
         }
       } else {
-        // Pentru toate categoriile
+        // Alte vehicule: pentru toate categoriile
         for (const territory of territories) {
           for (let catIndex = 0; catIndex < personCategories.length; catIndex++) {
             const personCategory = personCategories[catIndex];
@@ -543,18 +627,22 @@
             if (prices && Object.keys(prices).length > 0) {
               const cellId = `${vehicle.vehicle_id}_${territory.territory_id}_${personCategory.person_category_id}`;
               results[`BM_${BONUS_MALUS_CLASS}`][cellId] = prices;
-              console.log(`[SAVED] ${cellId}: ${Object.keys(prices).length} companii`);
+              savedCount++;
+              
+              const progress = Math.round((savedCount / totalCombinations) * 100);
+              console.log(`✅ Saved combination: ${vehicle.vehicle_id} | ${territory.territory_id} | ${personCategory.person_category_id}`);
+              console.log(`📊 Progress: ${progress}% (${savedCount}/${totalCombinations}) | Companies: ${Object.keys(prices).length}`);
               
               // Salvează progresul periodic
               if (processedCombinations % 10 === 0) {
                 saveData(results);
-                console.log(`[PROGRESS] ${processedCombinations}/${totalCombinations} (${Math.round(processedCombinations/totalCombinations*100)}%)`);
+                console.log(`💾 Auto-saved progress at ${progress}%`);
               }
             } else {
-              console.warn(`[SKIP] Nu s-au salvat date pentru ${vehicle.vehicle_id} - ${territory.territory_id} - ${personCategory.person_category_id}`);
+              console.warn(`⚠️ [SKIP] Nu s-au salvat date pentru ${vehicle.vehicle_id} - ${territory.territory_id} - ${personCategory.person_category_id}`);
             }
             
-            // Pauză mai scurtă între combinații
+            // Pauză între combinații
             await sleep(1000);
           }
         }
@@ -563,14 +651,13 @@
     
     // Salvează datele finale
     saveData(results);
-    console.log(`✓ Colectare completă pentru Bonus Malus ${BONUS_MALUS_CLASS}`);
+    console.log(`\n🎉 Colectare completă pentru Bonus Malus ${BONUS_MALUS_CLASS}`);
     
-    // Salvează datele finale
-    saveData(results);
-    console.log('\n=== Colectarea datelor este completă! ===');
-    console.log(`Total procesat: ${processedCombinations}/${totalCombinations}`);
-    console.log(`Bonus Malus: Clasa ${BONUS_MALUS_CLASS} (coeficient 1)`);
-    console.log('Folosește exportData() pentru a descărca datele.');
+    console.log('\n=== ✅ Colectarea datelor este completă! ===');
+    console.log(`📊 Total procesat: ${processedCombinations}/${totalCombinations}`);
+    console.log(`💾 Total salvat: ${savedCount}/${totalCombinations} (${Math.round((savedCount/totalCombinations)*100)}%)`);
+    console.log(`📋 Bonus Malus: Clasa ${BONUS_MALUS_CLASS} (coeficient 1)`);
+    console.log('💡 Folosește exportData() pentru a descărca datele.');
     
     // Returnează funcția de export
     window.exportData = exportData;
@@ -582,6 +669,7 @@
   window.showProgress = showProgress;
   
   console.log('=== Script Browser Collector încărcat! ===');
+  console.log('CORECTAT: Acum colectează corect prețurile pentru Taxi (A7) - doar pentru persoane juridice');
   console.log('Funcții disponibile:');
   console.log('  - collectRcaData() - Pornește colectarea datelor');
   console.log('  - showProgress() - Afișează progresul colectării');
@@ -592,4 +680,3 @@
   // Auto-start (comentează dacă nu vrei să pornească automat)
   // main();
 })();
-
