@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react'
-import { loadCompanies, getRcaCells, getPremiumValue, loadCompaniesFromFile, loadCompaniesByYear, loadCompaniesFromFileByYear, getAvailableYears } from '../utils/dataLoader'
+import { getRcaCells, getPremiumValue, getAvailableYears, loadCompaniesForYear, reloadCompaniesForYear, getYearDisplayLabel } from '../utils/dataLoader'
 
 function PremiumsTable() {
   const [companies, setCompanies] = useState([])
@@ -15,26 +15,10 @@ function PremiumsTable() {
     async function init() {
       const loadedCells = await getRcaCells()
       setRcaCells(loadedCells)
-      
-      // Try to load from localStorage first
-      let loadedCompanies = await loadCompaniesByYear(selectedYear)
-      
-      // If empty (only has BNM or nothing), try to auto-load from file
-      const companiesOnly = loadedCompanies.filter(c => !c.is_reference)
-      if (companiesOnly.length === 0) {
-        try {
-          const fileName = selectedYear === 2025 ? 'all_companies.json' : `all_companies_${selectedYear}.json`
-          await loadCompaniesFromFileByYear(selectedYear, fileName)
-          loadedCompanies = await loadCompaniesByYear(selectedYear)
-          console.log(`✅ Auto-loaded ${selectedYear} data from file`)
-        } catch (e) {
-          console.log(`ℹ️ No ${selectedYear} data file found, waiting for manual load`)
-        }
-      }
-      
+
+      const loadedCompanies = await loadCompaniesForYear(selectedYear)
       setCompanies(loadedCompanies)
-      
-      // Update available years
+
       const years = getAvailableYears()
       setAvailableYears(years)
     }
@@ -45,21 +29,17 @@ function PremiumsTable() {
     setIsLoadingData(true)
     setLoadError(null)
     try {
-      const fileName = selectedYear === 2025 ? 'all_companies.json' : `all_companies_${selectedYear}.json`
-      const loadedCompanies = await loadCompaniesFromFileByYear(selectedYear, fileName)
-      // Reîncarcă companiile pentru a include și BNM
-      const allCompanies = await loadCompaniesByYear(selectedYear)
+      const { loadedCompanies, allCompanies } = await reloadCompaniesForYear(selectedYear)
       setCompanies(allCompanies)
-      
-      // Update available years
+
       const years = getAvailableYears()
       setAvailableYears(years)
-      
-      alert(`✅ ${loadedCompanies.length} companii pentru ${selectedYear} încărcate cu succes!`)
+
+      alert(`✅ ${loadedCompanies.length} companii pentru ${getYearDisplayLabel(selectedYear)} încărcate cu succes!`)
     } catch (error) {
       console.error('Error loading companies:', error)
-      setLoadError(`Eroare la încărcarea datelor pentru ${selectedYear}. Verifică dacă fișierul există în folderul public.`)
-      alert(`❌ Eroare la încărcarea datelor pentru ${selectedYear}. Verifică consola pentru detalii.`)
+      setLoadError(`Eroare la încărcarea datelor pentru ${getYearDisplayLabel(selectedYear)}. Verifică dacă fișierul există în folderul public.`)
+      alert(`❌ Eroare la încărcarea datelor pentru ${getYearDisplayLabel(selectedYear)}. Verifică consola pentru detalii.`)
     } finally {
       setIsLoadingData(false)
     }
@@ -347,7 +327,7 @@ function PremiumsTable() {
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold text-gray-900">
-            Prime de referință RCA internă - {selectedYear}
+            Prime de referință RCA internă - {getYearDisplayLabel(selectedYear)}
           </h2>
           <button
             onClick={handleLoadCompaniesFromFile}
@@ -391,7 +371,7 @@ function PremiumsTable() {
               className="block w-full max-w-xs rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             >
               <option value={2025}>2025</option>
-              <option value={2026}>2026</option>
+              <option value={2026}>{getYearDisplayLabel(2026)}</option>
               {availableYears.filter(y => y !== 2025 && y !== 2026).map(year => (
                 <option key={year} value={year}>
                   {year}

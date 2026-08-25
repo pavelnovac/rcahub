@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react'
-import { loadCompaniesByYear, getRcaCells, getPremiumValue, loadCompaniesFromFileByYear, getAvailableYears } from '../utils/dataLoader'
+import { getRcaCells, getPremiumValue, getAvailableYears, loadCompaniesForYear, reloadCompaniesForYear, getYearDisplayLabel } from '../utils/dataLoader'
 
 function TopCheapestTable() {
   const [companies, setCompanies] = useState([])
@@ -15,22 +15,10 @@ function TopCheapestTable() {
     async function init() {
       const loadedCells = await getRcaCells()
       setRcaCells(loadedCells)
-      
-      let loadedCompanies = await loadCompaniesByYear(selectedYear)
-      
-      const companiesOnly = loadedCompanies.filter(c => !c.is_reference)
-      if (companiesOnly.length === 0) {
-        try {
-          const fileName = selectedYear === 2025 ? 'all_companies.json' : `all_companies_${selectedYear}.json`
-          await loadCompaniesFromFileByYear(selectedYear, fileName)
-          loadedCompanies = await loadCompaniesByYear(selectedYear)
-        } catch (e) {
-          console.log(`ℹ️ No ${selectedYear} data file found`)
-        }
-      }
-      
+
+      const loadedCompanies = await loadCompaniesForYear(selectedYear)
       setCompanies(loadedCompanies)
-      
+
       const years = getAvailableYears()
       setAvailableYears(years)
     }
@@ -41,18 +29,16 @@ function TopCheapestTable() {
     setIsLoadingData(true)
     setLoadError(null)
     try {
-      const fileName = selectedYear === 2025 ? 'all_companies.json' : `all_companies_${selectedYear}.json`
-      await loadCompaniesFromFileByYear(selectedYear, fileName)
-      const allCompanies = await loadCompaniesByYear(selectedYear)
+      const { allCompanies } = await reloadCompaniesForYear(selectedYear)
       setCompanies(allCompanies)
-      
+
       const years = getAvailableYears()
       setAvailableYears(years)
-      
-      alert(`✅ Datele pentru ${selectedYear} încărcate cu succes!`)
+
+      alert(`✅ Datele pentru ${getYearDisplayLabel(selectedYear)} încărcate cu succes!`)
     } catch (error) {
       console.error('Error loading companies:', error)
-      setLoadError(`Eroare la încărcarea datelor pentru ${selectedYear}.`)
+      setLoadError(`Eroare la încărcarea datelor pentru ${getYearDisplayLabel(selectedYear)}.`)
     } finally {
       setIsLoadingData(false)
     }
@@ -317,7 +303,7 @@ function TopCheapestTable() {
         <div className="flex justify-between items-center mb-4">
           <div>
             <h2 className="text-2xl font-bold bg-gradient-to-r from-violet-700 to-indigo-600 bg-clip-text text-transparent">
-              Top 3 Cele Mai Ieftine - {selectedYear}
+              Top 3 Cele Mai Ieftine - {getYearDisplayLabel(selectedYear)}
             </h2>
             <p className="text-slate-500 mt-1 text-sm">
               Comparație rapidă a celor mai bune prețuri pentru fiecare categorie
@@ -381,7 +367,7 @@ function TopCheapestTable() {
               className="block w-full max-w-xs rounded-xl border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white"
             >
               <option value={2025}>2025</option>
-              <option value={2026}>2026</option>
+              <option value={2026}>{getYearDisplayLabel(2026)}</option>
               {availableYears.filter(y => y !== 2025 && y !== 2026).map(year => (
                 <option key={year} value={year}>{year}</option>
               ))}
@@ -556,4 +542,6 @@ function TopCheapestTable() {
 }
 
 export default TopCheapestTable
+
+
 

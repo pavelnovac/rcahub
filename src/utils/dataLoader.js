@@ -43,8 +43,8 @@ export async function loadCompaniesByYear(year) {
   const stored = localStorage.getItem(yearKey)
   const customCompanies = stored ? JSON.parse(stored) : []
   
-  // BNM data is for 2026, only include it for 2026
-  if (year === 2026) {
+  // BNM reference rates apply to all 2026 snapshots
+  if (year === 2026 || String(year).startsWith('2026')) {
     const bnm = await loadBnmData()
     return [bnm, ...customCompanies]
   }
@@ -167,8 +167,101 @@ export async function loadCompaniesFromFile() {
   }
 }
 
+export const PRICE_DATASETS = [
+  {
+    id: '2025',
+    label: '2025',
+    shortLabel: '2025',
+    description: 'Prețuri 2025',
+    fileName: 'all_companies.json',
+    storageKey: 2025
+  },
+  {
+    id: '2026',
+    label: '2026 — început de an',
+    shortLabel: '2026',
+    description: 'Prețuri publicate la începutul anului 2026',
+    fileName: 'all_companies_2026.json',
+    storageKey: 2026
+  },
+  {
+    id: '2026-08-25',
+    label: '2026 — 25 august',
+    shortLabel: '25 aug.',
+    description: 'Prețuri curente (25 august 2026)',
+    fileName: 'all_companies_2026-08-25.json',
+    storageKey: '2026-08-25'
+  }
+]
+
+export function getPriceDataset(datasetId) {
+  return PRICE_DATASETS.find(dataset => dataset.id === datasetId) || null
+}
+
 /**
- * Încarcă companiile din fișierul all_companies.json pentru un an specific
+ * Setul de date folosit pe paginile operaționale (rate, top 3, setări)
+ * când utilizatorul alege un an. Pentru 2026 folosim cel mai recent snapshot.
+ */
+export function getOperationalDatasetForYear(year) {
+  if (year === 2025) return getPriceDataset('2025')
+  if (year === 2026) return getPriceDataset('2026-08-25')
+  return {
+    id: String(year),
+    label: String(year),
+    shortLabel: String(year),
+    description: `Prețuri ${year}`,
+    fileName: `all_companies_${year}.json`,
+    storageKey: year
+  }
+}
+
+export function getYearDisplayLabel(year) {
+  if (year === 2026) {
+    const dataset = getOperationalDatasetForYear(2026)
+    return `2026 (${dataset.shortLabel})`
+  }
+  return String(year)
+}
+
+export function getYearStorageKey(year) {
+  return getOperationalDatasetForYear(year).storageKey
+}
+
+export async function loadCompaniesForYear(year) {
+  return loadDatasetCompanies(getOperationalDatasetForYear(year))
+}
+
+export async function reloadCompaniesForYear(year) {
+  return reloadDatasetFromFile(getOperationalDatasetForYear(year))
+}
+
+export function hasCompanyPremiums(companies) {
+  return (companies || []).some(c => !c.is_reference && c.premiums && c.premiums.length > 0)
+}
+
+/**
+ * Încarcă companiile pentru un set de date (an sau snapshot).
+ * Fișierul din public/ este sursa de adevăr, ca actualizările de export
+ * să apară fără cache vechi din localStorage.
+ */
+export async function loadDatasetCompanies(dataset) {
+  try {
+    await loadCompaniesFromFileByYear(dataset.storageKey, dataset.fileName)
+    return await loadCompaniesByYear(dataset.storageKey)
+  } catch (error) {
+    console.log(`ℹ️ No ${dataset.id} data file found, using localStorage if available`)
+    return loadCompaniesByYear(dataset.storageKey)
+  }
+}
+
+export async function reloadDatasetFromFile(dataset) {
+  const loadedCompanies = await loadCompaniesFromFileByYear(dataset.storageKey, dataset.fileName)
+  const allCompanies = await loadCompaniesByYear(dataset.storageKey)
+  return { loadedCompanies, allCompanies }
+}
+
+/**
+ * Încarcă companiile din fișierul JSON pentru un an sau snapshot specific
  */
 export async function loadCompaniesFromFileByYear(year, fileName = 'all_companies.json') {
   try {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { loadCompaniesByYear, saveCompanyByYear, deleteCompanyByYear, getRcaCells } from '../utils/dataLoader'
+import { getRcaCells, saveCompanyByYear, deleteCompanyByYear, loadCompaniesForYear, getYearStorageKey, getYearDisplayLabel } from '../utils/dataLoader'
 
 function Settings() {
   const [companies, setCompanies] = useState([])
@@ -17,7 +17,7 @@ function Settings() {
   useEffect(() => {
     async function init() {
       const [loaded, cells] = await Promise.all([
-        loadCompaniesByYear(selectedYear),
+        loadCompaniesForYear(selectedYear),
         getRcaCells()
       ])
       // Filter out BNM reference company
@@ -58,8 +58,8 @@ function Settings() {
   }
 
   const handleDeleteCompany = (companyId) => {
-    if (window.confirm(`Sunteți sigur că doriți să ștergeți această companie pentru anul ${selectedYear}?`)) {
-      deleteCompanyByYear(companyId, selectedYear)
+    if (window.confirm(`Sunteți sigur că doriți să ștergeți această companie pentru ${getYearDisplayLabel(selectedYear)}?`)) {
+      deleteCompanyByYear(companyId, getYearStorageKey(selectedYear))
       setCompanies(companies.filter(c => c.company_id !== companyId))
     }
   }
@@ -70,9 +70,9 @@ function Settings() {
       return
     }
 
-    saveCompanyByYear(formData, selectedYear)
+    saveCompanyByYear(formData, getYearStorageKey(selectedYear))
     
-    const updated = (await loadCompaniesByYear(selectedYear)).filter(c => !c.is_reference)
+    const updated = (await loadCompaniesForYear(selectedYear)).filter(c => !c.is_reference)
     setCompanies(updated)
     setShowAddForm(false)
     setEditingCompany(null)
@@ -143,15 +143,15 @@ function Settings() {
                 onChange={(e) => setSelectedYear(parseInt(e.target.value))}
                 className="block w-48 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               >
-                <option value={2025}>2025 (Date curente)</option>
-                <option value={2026}>2026 (Date noi)</option>
+                <option value={2025}>2025</option>
+                <option value={2026}>{getYearDisplayLabel(2026)}</option>
               </select>
             </div>
             <div className="text-right">
               <div className="text-sm text-gray-600">Gestionezi datele pentru:</div>
-              <div className="text-xl font-bold text-blue-700">{selectedYear}</div>
+              <div className="text-xl font-bold text-blue-700">{getYearDisplayLabel(selectedYear)}</div>
               <div className="text-xs text-gray-500 mt-1">
-                {selectedYear === 2025 ? 'Date curente colectate' : 'Date noi (de mâine)'}
+                {selectedYear === 2025 ? 'Date 2025' : 'Prețuri curente (25 august 2026)'}
               </div>
             </div>
           </div>
@@ -164,7 +164,7 @@ function Settings() {
             {editingCompany ? 'Editează companie' : 'Adaugă companie nouă'}
           </h3>
           <p className="text-sm text-gray-600 mb-4">
-            Aceste date vor fi salvate pentru anul <span className="font-bold text-blue-600">{selectedYear}</span>
+            Aceste date vor fi salvate pentru <span className="font-bold text-blue-600">{getYearDisplayLabel(selectedYear)}</span>
           </p>
           
           <div className="space-y-4 mb-6">
@@ -262,7 +262,7 @@ function Settings() {
       <div className="bg-white shadow-sm rounded-lg overflow-hidden">
         <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
           <h3 className="text-lg font-medium text-gray-900">
-            Companii pentru {selectedYear}
+            Companii pentru {getYearDisplayLabel(selectedYear)}
           </h3>
           <p className="text-sm text-gray-500 mt-1">
             {companies.length} {companies.length === 1 ? 'companie' : 'companii'} {companies.length === 1 ? 'înregistrată' : 'înregistrate'}
@@ -289,7 +289,7 @@ function Settings() {
             {companies.length === 0 ? (
               <tr>
                 <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-500">
-                  Nu există companii pentru {selectedYear}. Adăugați una nouă sau încărcați datele din fișier pe pagina principală.
+                  Nu există companii pentru {getYearDisplayLabel(selectedYear)}. Adăugați una nouă sau încărcați datele din fișier pe pagina principală.
                 </td>
               </tr>
             ) : (

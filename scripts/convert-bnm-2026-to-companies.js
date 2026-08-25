@@ -35,9 +35,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Read input file
-const inputPath = path.join(__dirname, '..', 'data', 'rca_bnm_premiums_2026.json');
-const outputPath = path.join(__dirname, '..', 'public', 'all_companies_2026.json');
+const args = process.argv.slice(2)
+const inputPath = path.resolve(args[0] || path.join(__dirname, '..', 'data', 'rca_bnm_premiums_2026.json'))
+const outputPath = path.resolve(args[1] || path.join(__dirname, '..', 'public', 'all_companies_2026.json'))
 
 console.log('📂 Reading input file:', inputPath);
 const inputData = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
@@ -108,12 +108,5 @@ companies.forEach(company => {
 });
 
 console.log('');
-console.log('📁 Output file: public/all_companies_2026.json');
-console.log('');
-console.log('🎯 Next steps:');
-console.log('   1. Open the app at http://localhost:5173');
-console.log('   2. Go to "Rate de Referință" page');
-console.log('   3. Select year "2026" from dropdown');
-console.log('   4. Click "Încarcă datele" button');
-console.log('   5. Go to "Comparație 2025 vs 2026" to see the comparison');
+console.log('📁 Output file:', outputPath);
 

@@ -5,7 +5,9 @@
  * IMPORTANT: Colectează datele doar pentru Bonus Malus clasa 7 (coeficient 1)
  * Nu modifică câmpul Bonus Malus din formular - rămâne la clasa 7
  * 
- * CORECTAT: Acum colectează corect prețurile pentru Taxi și toate tipurile de vehicule
+ * Taxi (A7) NU este o subcategorie de vehicul. În formularul BNM este câmpul
+ * "Mod de operare" = <select name="auto_utilizare"> (value 1 = Mod obișnuit, 2 = Taxi),
+ * înfășurat într-un <div id="auto_utilizare">. Selectul NU are atribut id.
  * 
  * INSTRUCȚIUNI:
  * 1. Deschide https://rca.bnm.md/online în browser
@@ -80,66 +82,83 @@
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  // Funcție pentru a găsi ID-ul corect al câmpului de utilizare
-  function findUsageModeElementId() {
-    // Încearcă ID-uri comune
-    const possibleIds = ['u', 'ut', 'utilizare', 'auto_utilizare', 'usage'];
-    
-    for (const id of possibleIds) {
-      const $el = $(`#${id}`);
-      if ($el.length > 0 && $el.is('select')) {
-        console.log(`[FOUND] Element utilizare găsit: #${id}`);
-        return id;
+  // Găsește selectul "Mod de operare" (Taxi).
+  // IMPORTANT: în HTML-ul BNM, #auto_utilizare este un DIV, nu selectul.
+  // Selectul real este select[name="auto_utilizare"] și nu are atribut id.
+  function findUsageModeSelect() {
+    const $byName = $('select[name="auto_utilizare"]');
+    if ($byName.length > 0) {
+      return $byName.first();
+    }
+
+    const $wrapper = $('#auto_utilizare');
+    if ($wrapper.length > 0) {
+      const $select = $wrapper.is('select') ? $wrapper : $wrapper.find('select');
+      if ($select.length > 0) {
+        return $select.first();
       }
     }
-    
-    // Dacă nu găsește, caută după label sau placeholder
-    const $label = $('label:contains("Mod"), label:contains("Utilizare")');
-    if ($label.length > 0) {
-      const $input = $label.closest('.form-group, .form-row, div').find('select');
-      if ($input.length > 0) {
-        const id = $input.attr('id');
-        if (id) {
-          console.log(`[FOUND] Element utilizare găsit prin label: #${id}`);
-          return id;
-        }
+
+    const $row = $('.row').filter(function() {
+      const text = $(this).children().first().text();
+      return text.indexOf('Mod de operare') !== -1;
+    }).first();
+    if ($row.length > 0) {
+      const $select = $row.find('select');
+      if ($select.length > 0) {
+        return $select.first();
       }
     }
-    
-    console.warn('[WARN] Nu s-a găsit elementul pentru modul de utilizare. Încearcă manual să identifici ID-ul.');
-    return null;
+
+    console.warn('[WARN] Nu s-a găsit selectul pentru "Mod de operare" (Taxi).');
+    return $();
+  }
+
+  function resolveSelect(selectIdOrEl) {
+    if (selectIdOrEl && selectIdOrEl.jquery) {
+      return selectIdOrEl;
+    }
+    if (typeof selectIdOrEl !== 'string') {
+      return $();
+    }
+    if (selectIdOrEl.startsWith('#') || selectIdOrEl.includes('[')) {
+      return $(selectIdOrEl);
+    }
+    return $(`#${selectIdOrEl}`);
   }
 
   // Funcție pentru a seta valoarea unui select2
-  async function setSelect2Value(selectId, value, label = '') {
-    const $select = $(`#${selectId}`);
-    if ($select.length === 0) {
-      console.warn(`[WARN] Select ${selectId} nu a fost găsit`);
+  async function setSelect2Value(selectIdOrEl, value, label = '') {
+    const $select = resolveSelect(selectIdOrEl);
+    const selectName = typeof selectIdOrEl === 'string'
+      ? selectIdOrEl
+      : ($select.attr('name') || $select.attr('id') || 'select');
+
+    if ($select.length === 0 || !$select.is('select')) {
+      console.warn(`[WARN] Select ${selectName} nu a fost găsit`);
       return false;
     }
     
+    const targetValue = String(value);
     const currentValue = $select.val();
-    if (currentValue == value) {
-      console.log(`[SKIP] ${selectId} deja setat la ${value}${label ? ' (' + label + ')' : ''}`);
-      return false; // Nu s-a făcut modificare
+    if (currentValue == targetValue) {
+      console.log(`[SKIP] ${selectName} deja setat la ${targetValue}${label ? ' (' + label + ')' : ''}`);
+      return false;
     }
     
-    console.log(`[SET] ${selectId}: ${currentValue} → ${value}${label ? ' (' + label + ')' : ''}`);
+    console.log(`[SET] ${selectName}: ${currentValue} → ${targetValue}${label ? ' (' + label + ')' : ''}`);
     
-    // Setează valoarea
-    $select.val(value).trigger('change');
+    $select.val(targetValue).trigger('change');
     
-    // Așteaptă ca select2 să se actualizeze
     await sleep(500);
     
-    // Verifică că valoarea a fost setată corect
     const newValue = $select.val();
-    if (newValue != value) {
-      console.warn(`[WARN] ${selectId} nu s-a setat corect. Așteptat: ${value}, Obținut: ${newValue}`);
+    if (newValue != targetValue) {
+      console.warn(`[WARN] ${selectName} nu s-a setat corect. Așteptat: ${targetValue}, Obținut: ${newValue}`);
       return false;
     }
     
-    return true; // S-a făcut modificare
+    return true;
   }
 
   // Funcție pentru a seta valoarea unui radio button
@@ -172,24 +191,35 @@
   }
 
   // Funcție pentru a seta modul de utilizare (Mod obișnuit sau Taxi)
-  async function setUsageMode(usageMode, usageElementId = null) {
-    if (!usageElementId) {
-      usageElementId = findUsageModeElementId();
-      if (!usageElementId) {
-        console.warn('[WARN] Nu s-a putut găsi elementul pentru modul de utilizare');
-        return false;
-      }
+  async function setUsageMode(usageMode) {
+    const $usage = findUsageModeSelect();
+    if ($usage.length === 0) {
+      console.warn('[WARN] Nu s-a putut găsi selectul pentru modul de operare');
+      return false;
     }
     
-    const usageLabel = usageMode === USAGE_MODES.TAXI ? 'Taxi' : 'Mod obișnuit';
-    console.log(`[USAGE] Setare mod utilizare: ${usageLabel} (${usageMode})`);
+    const usageLabel = Number(usageMode) === USAGE_MODES.TAXI ? 'Taxi' : 'Mod obișnuit';
+    console.log(`[USAGE] Setare mod operare: ${usageLabel} (${usageMode})`);
     
-    return await setSelect2Value(usageElementId, usageMode, usageLabel);
+    return await setSelect2Value($usage, usageMode, usageLabel);
+  }
+
+  function getCurrentUsageMode() {
+    const $usage = findUsageModeSelect();
+    if ($usage.length === 0) {
+      return { value: null, text: null };
+    }
+    return {
+      value: $usage.val(),
+      text: ($usage.find('option:selected').text() || '').trim()
+    };
   }
 
   // Funcție pentru a seta categoria vehiculului și subcategoria
-  async function setVehicleCategory(category, subcategory, utilizare = null, vehicleId = '') {
-    console.log(`[VEHICLE] Setare vehicul: categoria=${category}, subcategoria=${subcategory}${vehicleId ? ' (' + vehicleId + ')' : ''}`);
+  async function setVehicleCategory(category, subcategory, utilizare = USAGE_MODES.NORMAL, vehicleId = '') {
+    const usageMode = utilizare || USAGE_MODES.NORMAL;
+    const usageLabel = Number(usageMode) === USAGE_MODES.TAXI ? 'Taxi' : 'Mod obișnuit';
+    console.log(`[VEHICLE] Setare vehicul: categoria=${category}, subcategoria=${subcategory}, utilizare=${usageLabel}${vehicleId ? ' (' + vehicleId + ')' : ''}`);
     
     // Setează categoria
     const categoryChanged = await setSelect2Value('vt', category, `Categorie ${category}`);
@@ -217,22 +247,23 @@
       subcategoryChanged = await setSelect2Value('vst5', subcategory, `Subcategorie ${subcategory}`);
     }
     
-    // Dacă e necesar, setează modul de utilizare (pentru Taxi)
-    // IMPORTANT: Modul de utilizare trebuie setat DUPĂ ce s-a setat subcategoria
-    if (utilizare) {
-      await sleep(300); // Așteaptă ca subcategoria să se actualizeze
-      const usageElementId = findUsageModeElementId();
-      if (usageElementId) {
-        console.log(`[VEHICLE] Setare mod utilizare: Taxi`);
-        await setUsageMode(utilizare, usageElementId);
+    // Setează ÎNTOTDEAUNA modul de operare: Taxi pentru A7, altfel Mod obișnuit.
+    // Altfel, după A7, restul vehiculelor ar rămâne pe Taxi.
+    await sleep(300);
+    const usageChanged = await setUsageMode(usageMode);
+
+    if (Number(usageMode) === USAGE_MODES.TAXI) {
+      const actual = getCurrentUsageMode();
+      if (String(actual.value) !== String(USAGE_MODES.TAXI)) {
+        console.error(`[ERROR] Taxi NU a fost setat. Valoare actuală: ${actual.value} (${actual.text})`);
       } else {
-        console.warn(`[WARN] Nu s-a găsit elementul pentru modul de utilizare. Taxi poate să nu fie setat corect.`);
+        console.log(`[OK] Mod de operare confirmat: ${actual.text}`);
       }
     }
     
     await sleep(300);
     
-    return categoryChanged || subcategoryChanged; // Returnează dacă s-a făcut vreo modificare
+    return categoryChanged || subcategoryChanged || usageChanged;
   }
 
   // Funcție pentru extragerea prețurilor din DOM
@@ -286,12 +317,13 @@
   async function collectDataForConfig(config) {
     const { vehicle, territory, personCategory, usageMode = null } = config;
     
-    const usageLabel = usageMode === USAGE_MODES.TAXI ? 'TAXI' : 'NORMAL';
-    console.log(`\n[START] Colectare: ${vehicle} - ${territory} - ${personCategory} - ${usageLabel}`);
-    const startTime = Date.now();
-    
     const personConfig = PERSON_CATEGORIES[personCategory];
     const vehicleConfig = VEHICLES[vehicle];
+    const effectiveUsage = vehicleConfig?.utilizare || usageMode || USAGE_MODES.NORMAL;
+    const usageLabel = Number(effectiveUsage) === USAGE_MODES.TAXI ? 'TAXI' : 'NORMAL';
+    
+    console.log(`\n[START] Colectare: ${vehicle} - ${territory} - ${personCategory} - ${usageLabel}`);
+    const startTime = Date.now();
     
     if (!personConfig || !vehicleConfig) {
       console.error(`[ERROR] Configurație invalidă pentru ${vehicle} - ${personCategory}`);
@@ -373,7 +405,7 @@
       const vehicleChanged = await setVehicleCategory(
         vehicleConfig.category,
         vehicleConfig.subcategory,
-        vehicleConfig.utilizare || usageMode || null,
+        effectiveUsage,
         vehicle
       );
       if (vehicleChanged) {
@@ -409,6 +441,14 @@
         console.log(`[DEBUG] Găsite ${priceElements.length} elemente cu prețuri`);
         return null;
       }
+
+      if (vehicle === 'A7') {
+        const actual = getCurrentUsageMode();
+        if (String(actual.value) !== String(USAGE_MODES.TAXI)) {
+          console.error(`[ERROR] A7 colectat FĂRĂ Taxi (mod actual: ${actual.value} / ${actual.text}). Prețurile sunt pentru autoturism obișnuit — nu se salvează.`);
+          return null;
+        }
+      }
       
       const duration = Date.now() - startTime;
       console.log(`[SUCCESS] Prețuri extrase: ${Object.keys(prices).length} companii în ${duration}ms`);
@@ -425,11 +465,13 @@
   // Funcție pentru salvarea datelor în localStorage
   function saveData(data) {
     const existing = localStorage.getItem(STORAGE_KEY);
-    let allData = existing ? JSON.parse(existing) : {};
-    
-    // Merge datele noi cu cele existente
-    allData = { ...allData, ...data };
-    
+    const allData = existing ? JSON.parse(existing) : {};
+
+    // Merge pe nivel de BM, ca re-colectarea Taxi să nu șteargă celelalte celule
+    Object.entries(data).forEach(([bmKey, cells]) => {
+      allData[bmKey] = { ...(allData[bmKey] || {}), ...cells };
+    });
+
     localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
     console.log('Date salvate în localStorage');
   }
@@ -501,12 +543,14 @@
       return;
     }
     
-    // Identifică elementul pentru modul de utilizare
-    const usageElementId = findUsageModeElementId();
-    if (!usageElementId) {
-      console.warn('[WARN] Nu s-a găsit elementul pentru modul de utilizare. Taxi nu va fi colectat.');
+    const $usageSelect = findUsageModeSelect();
+    if ($usageSelect.length === 0) {
+      console.warn('[WARN] Nu s-a găsit select[name="auto_utilizare"]. Taxi (A7) nu va putea fi colectat corect.');
     } else {
-      console.log(`[INFO] Element utilizare identificat: #${usageElementId}`);
+      const options = $usageSelect.find('option').map(function() {
+        return `${$(this).val()}=${$(this).text().trim()}`;
+      }).get().join(', ');
+      console.log(`[INFO] Mod de operare găsit: select[name="auto_utilizare"] (opțiuni: ${options})`);
     }
     
     // Vehicule
@@ -663,15 +707,57 @@
     window.exportData = exportData;
   }
 
+  // Re-colectează doar A7 (Taxi) și îl salvează peste datele existente din localStorage.
+  async function collectTaxiOnly() {
+    console.log('=== Colectare doar Taxi (A7, PJ, CH + AL) ===');
+
+    if (typeof $ === 'undefined' || typeof $.fn.select2 === 'undefined') {
+      console.error('jQuery sau Select2 nu sunt disponibile.');
+      return;
+    }
+    if ($('#idnp').length === 0) {
+      console.error('Formularul nu este disponibil. Deschide calculatorul (click pe "Calculează acum").');
+      return;
+    }
+
+    const $usageSelect = findUsageModeSelect();
+    if ($usageSelect.length === 0) {
+      console.error('Nu s-a găsit select[name="auto_utilizare"]. Oprește colectarea Taxi.');
+      return;
+    }
+
+    const taxiResults = { [`BM_${BONUS_MALUS_CLASS}`]: {} };
+    for (const territory of ['CH', 'AL']) {
+      const prices = await collectDataForConfig({
+        vehicle: 'A7',
+        territory,
+        personCategory: 'PJ'
+      });
+      if (prices && Object.keys(prices).length > 0) {
+        const cellId = `A7_${territory}_PJ`;
+        taxiResults[`BM_${BONUS_MALUS_CLASS}`][cellId] = prices;
+        console.log(`✅ Taxi salvat: ${cellId} | ${Object.keys(prices).length} companii`);
+      } else {
+        console.error(`❌ Taxi NU a fost salvat pentru ${territory}`);
+      }
+      await sleep(1000);
+    }
+
+    saveData(taxiResults);
+    console.log('=== Colectare Taxi finalizată. Folosește exportData() pentru descărcare. ===');
+  }
+
   // Expune funcțiile globale
   window.collectRcaData = main;
+  window.collectTaxiOnly = collectTaxiOnly;
   window.exportData = exportData;
   window.showProgress = showProgress;
   
   console.log('=== Script Browser Collector încărcat! ===');
-  console.log('CORECTAT: Acum colectează corect prețurile pentru Taxi (A7) - doar pentru persoane juridice');
+  console.log('Taxi (A7) = Autoturisme + Mod de operare "Taxi" (select[name="auto_utilizare"]=2), doar PJ');
   console.log('Funcții disponibile:');
   console.log('  - collectRcaData() - Pornește colectarea datelor');
+  console.log('  - collectTaxiOnly() - Re-colectează doar Taxi (A7, PJ)');
   console.log('  - showProgress() - Afișează progresul colectării');
   console.log('  - exportData() - Descarcă datele colectate');
   console.log('');

@@ -1,96 +1,86 @@
 import React, { useState, useMemo, useEffect } from 'react'
-import { loadCompaniesByYear, getRcaCells, getPremiumValue, loadCompaniesFromFileByYear } from '../utils/dataLoader'
+import {
+  getRcaCells,
+  getPremiumValue,
+  PRICE_DATASETS,
+  getPriceDataset,
+  hasCompanyPremiums,
+  loadDatasetCompanies,
+  reloadDatasetFromFile
+} from '../utils/dataLoader'
+
+const COMPARISON_PRESETS = [
+  { id: '2026-current', baseId: '2026', compareId: '2026-08-25', label: '2026 → 25 aug.' },
+  { id: '2025-2026', baseId: '2025', compareId: '2026', label: '2025 → 2026' },
+  { id: '2025-current', baseId: '2025', compareId: '2026-08-25', label: '2025 → 25 aug.' }
+]
 
 function PriceComparison() {
-  const [companies2025, setCompanies2025] = useState([])
-  const [companies2026, setCompanies2026] = useState([])
+  const [companiesByDataset, setCompaniesByDataset] = useState({})
   const [rcaCells, setRcaCells] = useState(null)
   const [selectedVehicleGroup, setSelectedVehicleGroup] = useState('all')
   const [selectedCompany, setSelectedCompany] = useState('min')
   const [comparisonMode, setComparisonMode] = useState('year') // 'year' or 'company'
   const [selectedCompany1, setSelectedCompany1] = useState('')
   const [selectedCompany2, setSelectedCompany2] = useState('')
-  const [selectedYear, setSelectedYear] = useState(2026) // Year for company comparison
-  const [isLoading2025, setIsLoading2025] = useState(false)
-  const [isLoading2026, setIsLoading2026] = useState(false)
+  const [selectedCompanyDatasetId, setSelectedCompanyDatasetId] = useState('2026-08-25')
+  const [baseDatasetId, setBaseDatasetId] = useState('2026')
+  const [compareDatasetId, setCompareDatasetId] = useState('2026-08-25')
+  const [loadingDatasetId, setLoadingDatasetId] = useState(null)
   const [loadError, setLoadError] = useState(null)
   const [showPercentage, setShowPercentage] = useState(true)
+  const [isInitializing, setIsInitializing] = useState(true)
 
   useEffect(() => {
     async function init() {
       const loadedCells = await getRcaCells()
       setRcaCells(loadedCells)
-      
-      let loaded2025 = await loadCompaniesByYear(2025)
-      let loaded2026 = await loadCompaniesByYear(2026)
-      
-      const companies2025Only = loaded2025.filter(c => !c.is_reference)
-      if (companies2025Only.length === 0) {
-        try {
-          await loadCompaniesFromFileByYear(2025, 'all_companies.json')
-          loaded2025 = await loadCompaniesByYear(2025)
-          console.log('✅ Auto-loaded 2025 data from file')
-        } catch (e) {
-          console.log('ℹ️ No 2025 data file found, waiting for manual load')
-        }
-      }
-      
-      const companies2026Only = loaded2026.filter(c => !c.is_reference)
-      if (companies2026Only.length === 0) {
-        try {
-          await loadCompaniesFromFileByYear(2026, 'all_companies_2026.json')
-          loaded2026 = await loadCompaniesByYear(2026)
-          console.log('✅ Auto-loaded 2026 data from file')
-        } catch (e) {
-          console.log('ℹ️ No 2026 data file found, waiting for manual load')
-        }
-      }
-      
-      setCompanies2025(loaded2025)
-      setCompanies2026(loaded2026)
+
+      const loadedEntries = await Promise.all(
+        PRICE_DATASETS.map(async (dataset) => {
+          const companies = await loadDatasetCompanies(dataset)
+          return [dataset.id, companies]
+        })
+      )
+      setCompaniesByDataset(Object.fromEntries(loadedEntries))
+      setIsInitializing(false)
     }
     init()
   }, [])
-  
-  const reloadData = async () => {
-    const [loaded2025, loaded2026] = await Promise.all([
-      loadCompaniesByYear(2025),
-      loadCompaniesByYear(2026)
-    ])
-    setCompanies2025(loaded2025)
-    setCompanies2026(loaded2026)
+
+  const reloadAllDatasets = async () => {
+    const loadedEntries = await Promise.all(
+      PRICE_DATASETS.map(async (dataset) => {
+        const companies = await loadDatasetCompanies(dataset)
+        return [dataset.id, companies]
+      })
+    )
+    setCompaniesByDataset(Object.fromEntries(loadedEntries))
   }
 
-  const handleLoadCompanies2025 = async () => {
-    setIsLoading2025(true)
+  const handleLoadDataset = async (datasetId) => {
+    const dataset = getPriceDataset(datasetId)
+    if (!dataset) return
+
+    setLoadingDatasetId(datasetId)
     setLoadError(null)
     try {
-      const loadedCompanies = await loadCompaniesFromFileByYear(2025, 'all_companies.json')
-      await reloadData()
-      alert(`✅ ${loadedCompanies.length} companii pentru 2025 încărcate cu succes!`)
+      const { loadedCompanies } = await reloadDatasetFromFile(dataset)
+      await reloadAllDatasets()
+      alert(`✅ ${loadedCompanies.length} companii pentru ${dataset.label} încărcate cu succes!`)
     } catch (error) {
-      console.error('Error loading 2025 companies:', error)
-      setLoadError('Eroare la încărcarea datelor 2025.')
-      alert('❌ Eroare la încărcarea datelor 2025.')
+      console.error(`Error loading ${datasetId} companies:`, error)
+      setLoadError(`Eroare la încărcarea datelor ${dataset.label}.`)
+      alert(`❌ Eroare la încărcarea datelor ${dataset.label}.`)
     } finally {
-      setIsLoading2025(false)
+      setLoadingDatasetId(null)
     }
   }
 
-  const handleLoadCompanies2026 = async () => {
-    setIsLoading2026(true)
-    setLoadError(null)
-    try {
-      const loadedCompanies = await loadCompaniesFromFileByYear(2026, 'all_companies_2026.json')
-      await reloadData()
-      alert(`✅ ${loadedCompanies.length} companii pentru 2026 încărcate cu succes!`)
-    } catch (error) {
-      console.error('Error loading 2026 companies:', error)
-      setLoadError('Eroare la încărcarea datelor 2026. Asigurați-vă că există fișierul all_companies_2026.json în folderul public.')
-      alert('❌ Eroare la încărcarea datelor 2026.')
-    } finally {
-      setIsLoading2026(false)
-    }
+  const applyPreset = (preset) => {
+    setBaseDatasetId(preset.baseId)
+    setCompareDatasetId(preset.compareId)
+    setSelectedCompany('min')
   }
 
   const territories = rcaCells?.territories || []
@@ -126,12 +116,30 @@ function PriceComparison() {
     return order.map(id => personCategories.find(cat => cat.person_category_id === id)).filter(Boolean)
   }, [personCategories])
 
-  const has2025Data = companies2025.filter(c => !c.is_reference && c.premiums && c.premiums.length > 0).length > 0
-  const has2026Data = companies2026.filter(c => !c.is_reference && c.premiums && c.premiums.length > 0).length > 0
+  const baseDataset = getPriceDataset(baseDatasetId)
+  const compareDataset = getPriceDataset(compareDatasetId)
+  const baseCompanies = companiesByDataset[baseDatasetId] || []
+  const compareCompanies = companiesByDataset[compareDatasetId] || []
+  const hasBaseData = hasCompanyPremiums(baseCompanies)
+  const hasCompareData = hasCompanyPremiums(compareCompanies)
 
-  // Get available companies for selected year (for company comparison)
-  const getAvailableCompanies = (year) => {
-    const companies = year === 2025 ? companies2025 : companies2026
+  const activePresetId = COMPARISON_PRESETS.find(
+    preset => preset.baseId === baseDatasetId && preset.compareId === compareDatasetId
+  )?.id || null
+
+  const companiesForFilter = useMemo(() => {
+    const byName = new Map()
+    ;[...baseCompanies, ...compareCompanies].forEach(company => {
+      if (!company.is_reference && company.company_name && !byName.has(company.company_name)) {
+        byName.set(company.company_name, company)
+      }
+    })
+    return Array.from(byName.values()).sort((a, b) => a.company_name.localeCompare(b.company_name))
+  }, [baseCompanies, compareCompanies])
+
+  // Get available companies for selected dataset (for company comparison)
+  const getAvailableCompanies = (datasetId) => {
+    const companies = companiesByDataset[datasetId] || []
     return companies.filter(c => !c.is_reference && c.premiums && c.premiums.length > 0)
   }
 
@@ -142,7 +150,7 @@ function PriceComparison() {
       return null
     }
 
-    const companies = selectedYear === 2025 ? companies2025 : companies2026
+    const companies = companiesByDataset[selectedCompanyDatasetId] || []
     const company1 = companies.find(c => c.company_id === selectedCompany1)
     const company2 = companies.find(c => c.company_id === selectedCompany2)
 
@@ -270,9 +278,135 @@ function PriceComparison() {
       company2: { name: company2.company_name, id: company2.company_id },
       differences
     }
-  }, [comparisonMode, selectedCompany1, selectedCompany2, selectedYear, companies2025, companies2026, vehicles, territories, personCategories, rcaCells])
+  }, [comparisonMode, selectedCompany1, selectedCompany2, selectedCompanyDatasetId, companiesByDataset, vehicles, territories, personCategories, rcaCells])
 
-  if (!rcaCells) {
+  const changeSummary = useMemo(() => {
+    if (!hasBaseData || !hasCompareData || !vehicles.length || !territories.length || !orderedPersonCategories.length) {
+      return null
+    }
+
+    const getMinValue = (cellId, companies) => {
+      let minValue = Infinity
+      companies.forEach(company => {
+        if (company.is_reference) return
+        const value = getPremiumValue(company, cellId)
+        if (value !== null && value < minValue) {
+          minValue = value
+        }
+      })
+      return minValue === Infinity ? null : minValue
+    }
+
+    const getValue = (cellId, companies) => {
+      if (selectedCompany === 'min') {
+        return getMinValue(cellId, companies)
+      }
+      const selected = companiesForFilter.find(c => c.company_id === selectedCompany)
+      const companyName = selected?.company_name
+      if (!companyName) return null
+      const company = companies.find(c => c.company_name === companyName)
+      return company ? getPremiumValue(company, cellId) : null
+    }
+
+    let increased = 0
+    let decreased = 0
+    let unchanged = 0
+    let missing = 0
+    let totalPct = 0
+    let pctCount = 0
+    let biggestIncrease = null
+    let biggestDecrease = null
+    const companyChanges = {}
+
+    filteredVehicles.forEach(vehicle => {
+      territories.forEach(territory => {
+        orderedPersonCategories.forEach(category => {
+          if ((vehicle.vehicle_id === 'A7' || vehicle.vehicle_id === 'B4') && category.person_type !== 'juridica') {
+            return
+          }
+
+          const cellId = `${vehicle.vehicle_id}_${territory.territory_id}_${category.person_category_id}`
+          const valueBase = getValue(cellId, baseCompanies)
+          const valueCompare = getValue(cellId, compareCompanies)
+
+          if (valueBase === null || valueCompare === null) {
+            missing++
+            return
+          }
+
+          const change = valueCompare - valueBase
+          const percentage = valueBase !== 0 ? (change / valueBase) * 100 : null
+
+          if (change > 0) increased++
+          else if (change < 0) decreased++
+          else unchanged++
+
+          if (percentage !== null && isFinite(percentage)) {
+            totalPct += percentage
+            pctCount++
+          }
+
+          const point = { cellId, vehicle: vehicle.vehicle_id, change, percentage, valueBase, valueCompare }
+          if (!biggestIncrease || change > biggestIncrease.change) biggestIncrease = point
+          if (!biggestDecrease || change < biggestDecrease.change) biggestDecrease = point
+        })
+      })
+    })
+
+    if (selectedCompany === 'min') {
+      companiesForFilter.forEach(company => {
+        let up = 0
+        let down = 0
+        let same = 0
+        filteredVehicles.forEach(vehicle => {
+          territories.forEach(territory => {
+            orderedPersonCategories.forEach(category => {
+              if ((vehicle.vehicle_id === 'A7' || vehicle.vehicle_id === 'B4') && category.person_type !== 'juridica') {
+                return
+              }
+              const cellId = `${vehicle.vehicle_id}_${territory.territory_id}_${category.person_category_id}`
+              const baseCompany = baseCompanies.find(c => c.company_name === company.company_name)
+              const compareCompany = compareCompanies.find(c => c.company_name === company.company_name)
+              const v1 = baseCompany ? getPremiumValue(baseCompany, cellId) : null
+              const v2 = compareCompany ? getPremiumValue(compareCompany, cellId) : null
+              if (v1 === null || v2 === null) return
+              if (v2 > v1) up++
+              else if (v2 < v1) down++
+              else same++
+            })
+          })
+        })
+        if (up + down > 0) {
+          companyChanges[company.company_name] = { up, down, same }
+        }
+      })
+    }
+
+    return {
+      increased,
+      decreased,
+      unchanged,
+      missing,
+      compared: increased + decreased + unchanged,
+      avgPercentage: pctCount > 0 ? totalPct / pctCount : null,
+      biggestIncrease: biggestIncrease && biggestIncrease.change > 0 ? biggestIncrease : null,
+      biggestDecrease: biggestDecrease && biggestDecrease.change < 0 ? biggestDecrease : null,
+      companyChanges
+    }
+  }, [
+    hasBaseData,
+    hasCompareData,
+    vehicles,
+    territories,
+    orderedPersonCategories,
+    filteredVehicles,
+    selectedCompany,
+    companiesForFilter,
+    baseCompanies,
+    compareCompanies
+  ])
+
+  if (!rcaCells || isInitializing) {
     return <div className="px-4 py-6">Se încarcă...</div>
   }
 
@@ -405,7 +539,7 @@ function PriceComparison() {
   }
 
 
-  if (!has2025Data || !has2026Data) {
+  if (comparisonMode === 'year' && (!hasBaseData || !hasCompareData)) {
     return (
       <div className="px-4 py-6">
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
@@ -413,37 +547,29 @@ function PriceComparison() {
             Date lipsă pentru comparație
           </h3>
           <p className="text-yellow-700 mb-4">
-            Pentru a compara prețurile, trebuie să încărcați datele pentru ambii ani (2025 și 2026).
+            Pentru a compara prețurile, trebuie să încărcați datele pentru ambele seturi selectate.
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white rounded p-4">
-              <h4 className="font-semibold mb-2">Date 2025</h4>
-              <p className="text-sm text-gray-600 mb-3">
-                Status: {has2025Data ? '✅ Încărcate' : '❌ Lipsă'}
-              </p>
-              <button
-                onClick={handleLoadCompanies2025}
-                disabled={isLoading2025}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center"
-              >
-                {isLoading2025 ? 'Se încarcă...' : 'Încarcă date 2025'}
-              </button>
-            </div>
-
-            <div className="bg-white rounded p-4">
-              <h4 className="font-semibold mb-2">Date 2026</h4>
-              <p className="text-sm text-gray-600 mb-3">
-                Status: {has2026Data ? '✅ Încărcate' : '❌ Lipsă'}
-              </p>
-              <button
-                onClick={handleLoadCompanies2026}
-                disabled={isLoading2026}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center"
-              >
-                {isLoading2026 ? 'Se încarcă...' : 'Încarcă date 2026'}
-              </button>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {PRICE_DATASETS.map(dataset => {
+              const loaded = hasCompanyPremiums(companiesByDataset[dataset.id] || [])
+              return (
+                <div key={dataset.id} className="bg-white rounded p-4">
+                  <h4 className="font-semibold mb-1">{dataset.label}</h4>
+                  <p className="text-xs text-gray-500 mb-2">{dataset.description}</p>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Status: {loaded ? 'Încărcate' : 'Lipsă'}
+                  </p>
+                  <button
+                    onClick={() => handleLoadDataset(dataset.id)}
+                    disabled={loadingDatasetId === dataset.id}
+                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center"
+                  >
+                    {loadingDatasetId === dataset.id ? 'Se încarcă...' : `Încarcă ${dataset.shortLabel}`}
+                  </button>
+                </div>
+              )
+            })}
           </div>
           
           {loadError && (
@@ -471,7 +597,9 @@ function PriceComparison() {
   // Get selected company name
   const getSelectedCompanyName = () => {
     if (selectedCompany === 'min') return null
-    const company = companies2025.find(c => c.company_id === selectedCompany)
+    const company = companiesForFilter.find(c => c.company_id === selectedCompany)
+      || baseCompanies.find(c => c.company_id === selectedCompany)
+      || compareCompanies.find(c => c.company_id === selectedCompany)
     return company?.company_name || null
   }
 
@@ -479,22 +607,20 @@ function PriceComparison() {
   const renderComparisonCell = (vehicle, territoryId, category) => {
     const cellId = getCellId(vehicle.vehicle_id, territoryId, category.person_category_id)
     
-    let value2025, value2026
+    let valueBase, valueCompare
     
     if (selectedCompany === 'min') {
-      // Show minimum values across all companies
-      value2025 = getMinValueAndCompany(cellId, companies2025).value
-      value2026 = getMinValueAndCompany(cellId, companies2026).value
+      valueBase = getMinValueAndCompany(cellId, baseCompanies).value
+      valueCompare = getMinValueAndCompany(cellId, compareCompanies).value
     } else {
-      // Show values for selected company - match by name since IDs differ between years
       const companyName = getSelectedCompanyName()
-      value2025 = getCompanyValueByName(cellId, companies2025, companyName)
-      value2026 = getCompanyValueByName(cellId, companies2026, companyName)
+      valueBase = getCompanyValueByName(cellId, baseCompanies, companyName)
+      valueCompare = getCompanyValueByName(cellId, compareCompanies, companyName)
     }
     
-    const comparison = getComparison(value2025, value2026)
+    const comparison = getComparison(valueBase, valueCompare)
     
-    const bgClass = getCellBgClass(value2025, value2026)
+    const bgClass = getCellBgClass(valueBase, valueCompare)
     const changeTextClass = comparison.change === null ? 'text-gray-400' : 
                            comparison.change < 0 ? 'text-blue-700 font-semibold' : 
                            comparison.change > 0 ? 'text-red-700 font-semibold' : 'text-gray-600'
@@ -504,15 +630,12 @@ function PriceComparison() {
         key={`${territoryId}-${category.person_category_id}`} 
         className={`px-2 py-2 text-center border-r border-gray-200 ${bgClass} transition-colors`}
       >
-        {/* 2026 Price - Main, larger */}
         <div className="text-sm font-bold text-gray-900">
-          {formatCurrency(value2026)}
+          {formatCurrency(valueCompare)}
         </div>
-        {/* 2025 Price - Smaller, muted (no label) */}
         <div className="text-xs text-gray-400 mt-0.5">
-          {formatCurrency(value2025)}
+          {formatCurrency(valueBase)}
         </div>
-        {/* Change */}
         <div className={`text-xs mt-0.5 ${changeTextClass}`}>
           {showPercentage ? formatPercentage(comparison.percentage) : formatChange(comparison.change)}
         </div>
@@ -525,7 +648,7 @@ function PriceComparison() {
     if (!calculateCompanyDifferences) return null
     
     const { company1, company2 } = calculateCompanyDifferences
-    const companies = selectedYear === 2025 ? companies2025 : companies2026
+    const companies = companiesByDataset[selectedCompanyDatasetId] || []
     const comp1 = companies.find(c => c.company_id === company1.id)
     const comp2 = companies.find(c => c.company_id === company2.id)
     
@@ -582,7 +705,8 @@ function PriceComparison() {
 
   // Render company comparison view
   const renderCompanyComparison = () => {
-    const availableCompanies = getAvailableCompanies(selectedYear)
+    const availableCompanies = getAvailableCompanies(selectedCompanyDatasetId)
+    const companyDataset = getPriceDataset(selectedCompanyDatasetId)
 
     return (
       <div className="space-y-6">
@@ -591,19 +715,22 @@ function PriceComparison() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                An
+                Set de date
               </label>
               <select
-                value={selectedYear}
+                value={selectedCompanyDatasetId}
                 onChange={(e) => {
-                  setSelectedYear(parseInt(e.target.value))
+                  setSelectedCompanyDatasetId(e.target.value)
                   setSelectedCompany1('')
                   setSelectedCompany2('')
                 }}
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               >
-                <option value={2025}>2025</option>
-                <option value={2026}>2026</option>
+                {PRICE_DATASETS.map(dataset => (
+                  <option key={dataset.id} value={dataset.id}>
+                    {dataset.label}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -662,7 +789,7 @@ function PriceComparison() {
                     Comparație: {company1.name} vs {company2.name}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    An: {selectedYear} | {Object.keys(differences.byVehicleGroup).length} categorii vehicule | {Object.keys(differences.byPersonCategory).length} categorii persoane
+                    Set: {companyDataset?.label || selectedCompanyDatasetId} | {Object.keys(differences.byVehicleGroup).length} categorii vehicule | {Object.keys(differences.byPersonCategory).length} categorii persoane
                   </p>
                 </div>
 
@@ -953,11 +1080,13 @@ function PriceComparison() {
   return (
     <div className="px-4 py-6">
       <div className="mb-6">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
           <h2 className="text-2xl font-bold text-gray-900">
-            {comparisonMode === 'year' ? 'Comparație Prețuri: 2025 vs 2026' : 'Comparație Companie: Prețuri pe Categorii'}
+            {comparisonMode === 'year'
+              ? `Comparație prețuri: ${baseDataset?.shortLabel || baseDatasetId} → ${compareDataset?.shortLabel || compareDatasetId}`
+              : 'Comparație Companie: Prețuri pe Categorii'}
           </h2>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setShowPercentage(!showPercentage)}
               className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
@@ -972,38 +1101,153 @@ function PriceComparison() {
                   : 'bg-purple-600 hover:bg-purple-700 text-white'
               }`}
             >
-              {comparisonMode === 'year' ? '📊 Comparație Companie' : '📅 Comparație Ani'}
-            </button>
-            <button
-              onClick={handleLoadCompanies2025}
-              disabled={isLoading2025}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
-              title="Reîncarcă datele 2025"
-            >
-              📅 2025
-            </button>
-            <button
-              onClick={handleLoadCompanies2026}
-              disabled={isLoading2026}
-              className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-300 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
-              title="Reîncarcă datele 2026"
-            >
-              📅 2026
+              {comparisonMode === 'year' ? 'Comparație Companie' : 'Comparație perioade'}
             </button>
           </div>
         </div>
         
         {comparisonMode === 'year' && (
           <>
-            {/* Legend */}
+            <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
+              <div className="flex flex-wrap items-end gap-4 mb-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Compară
+                  </label>
+                  <select
+                    value={baseDatasetId}
+                    onChange={(e) => {
+                      const nextId = e.target.value
+                      setBaseDatasetId(nextId)
+                      if (nextId === compareDatasetId) {
+                        const fallback = PRICE_DATASETS.find(d => d.id !== nextId)
+                        if (fallback) setCompareDatasetId(fallback.id)
+                      }
+                      setSelectedCompany('min')
+                    }}
+                    className="block w-56 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  >
+                    {PRICE_DATASETS.map(dataset => (
+                      <option key={dataset.id} value={dataset.id}>
+                        {dataset.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    cu
+                  </label>
+                  <select
+                    value={compareDatasetId}
+                    onChange={(e) => {
+                      const nextId = e.target.value
+                      setCompareDatasetId(nextId)
+                      if (nextId === baseDatasetId) {
+                        const fallback = PRICE_DATASETS.find(d => d.id !== nextId)
+                        if (fallback) setBaseDatasetId(fallback.id)
+                      }
+                      setSelectedCompany('min')
+                    }}
+                    className="block w-56 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  >
+                    {PRICE_DATASETS.map(dataset => (
+                      <option key={dataset.id} value={dataset.id}>
+                        {dataset.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex flex-wrap gap-2 pb-0.5">
+                  {COMPARISON_PRESETS.map(preset => (
+                    <button
+                      key={preset.id}
+                      onClick={() => applyPreset(preset)}
+                      className={`text-sm font-medium py-2 px-3 rounded-lg border transition-colors duration-200 ${
+                        activePresetId === preset.id
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <p className="text-sm text-gray-500">
+                {baseDataset?.description} → {compareDataset?.description}
+              </p>
+            </div>
+
+            {changeSummary && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-3">
+                  <div className="text-xs text-gray-500">Celule comparate</div>
+                  <div className="text-xl font-bold text-gray-900">{changeSummary.compared}</div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {changeSummary.unchanged} neschimbate
+                  </div>
+                </div>
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <div className="text-xs text-red-700">Creșteri</div>
+                  <div className="text-xl font-bold text-red-700">{changeSummary.increased}</div>
+                  <div className="text-xs text-red-600 mt-1">
+                    {changeSummary.biggestIncrease
+                      ? `max +${formatCurrency(changeSummary.biggestIncrease.change)} (${changeSummary.biggestIncrease.vehicle})`
+                      : 'fără creșteri'}
+                  </div>
+                </div>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div className="text-xs text-blue-700">Scăderi</div>
+                  <div className="text-xl font-bold text-blue-700">{changeSummary.decreased}</div>
+                  <div className="text-xs text-blue-600 mt-1">
+                    {changeSummary.biggestDecrease
+                      ? `max ${formatCurrency(changeSummary.biggestDecrease.change)} (${changeSummary.biggestDecrease.vehicle})`
+                      : 'fără scăderi'}
+                  </div>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-lg p-3">
+                  <div className="text-xs text-gray-500">Modificare medie</div>
+                  <div className={`text-xl font-bold ${
+                    changeSummary.avgPercentage === null || Math.abs(changeSummary.avgPercentage) < 0.05
+                      ? 'text-gray-900'
+                      : changeSummary.avgPercentage > 0 ? 'text-red-700' : 'text-blue-700'
+                  }`}>
+                    {formatPercentage(changeSummary.avgPercentage)}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">pe celulele din tabel</div>
+                </div>
+              </div>
+            )}
+
+            {selectedCompany === 'min' && changeSummary && Object.keys(changeSummary.companyChanges).length > 0 && (
+              <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">Companii care au modificat prețurile</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                  {Object.entries(changeSummary.companyChanges)
+                    .sort(([, a], [, b]) => (b.up + b.down) - (a.up + a.down))
+                    .map(([name, stats]) => (
+                      <div key={name} className="flex items-center justify-between text-sm border border-gray-100 rounded px-3 py-2">
+                        <span className="font-medium text-gray-800">{name.replace(' S.A.', '')}</span>
+                        <span className="text-gray-600">
+                          {stats.up > 0 && <span className="text-red-700">+{stats.up}</span>}
+                          {stats.up > 0 && stats.down > 0 && ' / '}
+                          {stats.down > 0 && <span className="text-blue-700">-{stats.down}</span>}
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-4 mb-4 text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 bg-blue-100 rounded border border-blue-300"></div>
-                <span className="text-gray-700">Preț scăzut în 2026</span>
+                <span className="text-gray-700">Preț scăzut în {compareDataset?.shortLabel}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 bg-red-100 rounded border border-red-300"></div>
-                <span className="text-gray-700">Preț crescut în 2026</span>
+                <span className="text-gray-700">Preț crescut în {compareDataset?.shortLabel}</span>
               </div>
             </div>
             
@@ -1024,7 +1268,7 @@ function PriceComparison() {
                   className="block w-full max-w-xs rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 >
                   <option value="min">Valori minime (implicit)</option>
-                  {companies2025.map(company => (
+                  {companiesForFilter.map(company => (
                     <option key={company.company_id} value={company.company_id}>
                       {company.company_name}
                     </option>
@@ -1177,7 +1421,7 @@ function PriceComparison() {
           {/* Summary info */}
           <div className="mt-4 text-sm text-gray-600">
             <p>
-              <strong>Legendă celulă:</strong> Prima linie = preț 2026, a doua linie (gri) = preț 2025, a treia linie = diferență ({showPercentage ? '%' : 'MDL'})
+              <strong>Legendă celulă:</strong> Prima linie = {compareDataset?.label}, a doua linie (gri) = {baseDataset?.label}, a treia linie = diferență ({showPercentage ? '%' : 'MDL'})
             </p>
           </div>
         </>
