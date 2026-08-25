@@ -19,17 +19,9 @@ Calculatorul BNM permite calcularea primei de asigurare RCA pentru diferite conf
 
 ## Utilizare
 
-### Instalare dependențe
+Colectarea se face cu `scripts/browser-collector.js`, rulat în consola browserului real pe calculatorul BNM.
 
-```bash
-npm install
-```
-
-### Rulare script
-
-```bash
-npm run collect-premiums
-```
+Ghid complet: [BROWSER_USAGE.md](./BROWSER_USAGE.md)
 
 ## Structura Datelor
 

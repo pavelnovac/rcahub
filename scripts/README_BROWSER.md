@@ -4,7 +4,7 @@ Această metodă folosește un script JavaScript care rulează direct în browse
 
 ## Avantaje
 
-- ✅ Nu necesită instalarea Puppeteer sau alte dependențe
+- ✅ Nu necesită dependențe extra
 - ✅ Folosește browserul real (Chrome, Firefox, Safari, etc.)
 - ✅ Datele sunt salvate în localStorage (nu se pierd dacă se întâmplă ceva)
 - ✅ Poți vedea progresul în timp real
