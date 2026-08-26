@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { getRcaCells, getPremiumValue, getAvailableYears, loadCompaniesForYear, reloadCompaniesForYear, getYearDisplayLabel } from '../utils/dataLoader'
+import { getCompanyColor, getCompanyShortName } from '../utils/companyColors'
+import CompanyColorLegend from './CompanyColorLegend'
 
 function PremiumsTable() {
   const [companies, setCompanies] = useState([])
@@ -91,42 +93,6 @@ function PremiumsTable() {
 
   // Verifică dacă afișăm valorile minime
   const showMinValues = selectedCompany === 'min'
-
-  // Generează culori consistente pentru fiecare companie
-  const getCompanyColor = (companyId) => {
-    // Paletă de culori pastelate pentru o bună vizibilitate
-    const colors = [
-      { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-800', header: 'bg-blue-100', short: 'text-blue-700' },
-      { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-800', header: 'bg-green-100', short: 'text-green-700' },
-      { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-800', header: 'bg-purple-100', short: 'text-purple-700' },
-      { bg: 'bg-pink-50', border: 'border-pink-200', text: 'text-pink-800', header: 'bg-pink-100', short: 'text-pink-700' },
-      { bg: 'bg-yellow-50', border: 'border-yellow-200', text: 'text-yellow-800', header: 'bg-yellow-100', short: 'text-yellow-700' },
-      { bg: 'bg-indigo-50', border: 'border-indigo-200', text: 'text-indigo-800', header: 'bg-indigo-100', short: 'text-indigo-700' },
-      { bg: 'bg-teal-50', border: 'border-teal-200', text: 'text-teal-800', header: 'bg-teal-100', short: 'text-teal-700' },
-      { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-800', header: 'bg-orange-100', short: 'text-orange-700' },
-      { bg: 'bg-cyan-50', border: 'border-cyan-200', text: 'text-cyan-800', header: 'bg-cyan-100', short: 'text-cyan-700' },
-      { bg: 'bg-rose-50', border: 'border-rose-200', text: 'text-rose-800', header: 'bg-rose-100', short: 'text-rose-700' },
-    ]
-    
-    // Generează un index bazat pe ID-ul companiei pentru consistență
-    let hash = 0
-    for (let i = 0; i < companyId.length; i++) {
-      hash = companyId.charCodeAt(i) + ((hash << 5) - hash)
-    }
-    const index = Math.abs(hash) % colors.length
-    return colors[index]
-  }
-
-  // Memoizează culorile pentru fiecare companie
-  const companyColors = useMemo(() => {
-    const colorMap = {}
-    companies.forEach(company => {
-      if (!company.is_reference) {
-        colorMap[company.company_id] = getCompanyColor(company.company_id)
-      }
-    })
-    return colorMap
-  }, [companies])
 
   // Early return after all hooks
   if (!rcaCells) {
@@ -261,19 +227,6 @@ function PremiumsTable() {
     
     // Fallback la descrierea completă dacă nu găsește nimic
     return vehicle.description || vehicle.vehicle_id
-  }
-
-  // Funcție pentru a obține denumirea prescurtată a unei companii
-  const getCompanyShortName = (companyName) => {
-    // Extrage primele cuvinte majuscule sau primele litere
-    const words = companyName.split(' ')
-    if (words.length === 1) {
-      return companyName.substring(0, 8).toUpperCase()
-    }
-    // Pentru "ACORD GRUP S.A." -> "ACORD"
-    // Pentru "ASTERRA GRUP S.A." -> "ASTERRA"
-    // Pentru "DONARIS VIENNA INSURANCE GROUP S.A." -> "DONARIS"
-    return words[0].toUpperCase()
   }
 
   // Company priority for tie-breaking (lower index = higher priority)
@@ -418,6 +371,8 @@ function PremiumsTable() {
         </div>
       </div>
 
+      <CompanyColorLegend companies={companies} />
+
       <div className="bg-white shadow-sm rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 border border-gray-300">
@@ -442,7 +397,7 @@ function PremiumsTable() {
                   displayedCompanies.map(company => {
                     const colors = company.is_reference 
                       ? { header: 'bg-blue-100', text: 'text-blue-800' }
-                      : companyColors[company.company_id] || { header: 'bg-gray-50', text: 'text-gray-700' }
+                      : getCompanyColor(company)
                     return (
                       <th
                         key={company.company_id}
@@ -479,7 +434,7 @@ function PremiumsTable() {
                   displayedCompanies.map(company => {
                     const colors = company.is_reference 
                       ? { bg: 'bg-blue-50', text: 'text-blue-800' }
-                      : companyColors[company.company_id] || { bg: 'bg-gray-50', text: 'text-gray-700' }
+                      : getCompanyColor(company)
                     return (
                       <React.Fragment key={`${company.company_id}-territories`}>
                         <th
@@ -540,7 +495,7 @@ function PremiumsTable() {
                   displayedCompanies.map(company => {
                     const colors = company.is_reference 
                       ? { bg: 'bg-blue-50', text: 'text-blue-700' }
-                      : companyColors[company.company_id] || { bg: 'bg-gray-50', text: 'text-gray-600' }
+                      : getCompanyColor(company)
                     return (
                       <React.Fragment key={`${company.company_id}-categories`}>
                         {/* CH territory columns */}
@@ -634,9 +589,7 @@ function PremiumsTable() {
                           const cellId = getCellId(vehicle.vehicle_id, 'CH', category.person_category_id)
                           const { value, company: minCompany } = getMinValueAndCompany(cellId)
                           // Obține culoarea companiei cu valoarea minimă
-                          const minColors = minCompany 
-                            ? companyColors[minCompany.company_id] || { bg: 'bg-white', text: 'text-gray-900', short: 'text-gray-700' }
-                            : { bg: 'bg-gray-50', text: 'text-gray-900', short: 'text-gray-700' }
+                          const minColors = getCompanyColor(minCompany)
                           return (
                             <td
                               key={`min-CH-${category.person_category_id}`}
@@ -667,9 +620,7 @@ function PremiumsTable() {
                           const cellId = getCellId(vehicle.vehicle_id, 'AL', category.person_category_id)
                           const { value, company: minCompany } = getMinValueAndCompany(cellId)
                           // Obține culoarea companiei cu valoarea minimă
-                          const minColors = minCompany 
-                            ? companyColors[minCompany.company_id] || { bg: 'bg-white', text: 'text-gray-900', short: 'text-gray-700' }
-                            : { bg: 'bg-gray-50', text: 'text-gray-900', short: 'text-gray-700' }
+                          const minColors = getCompanyColor(minCompany)
                           return (
                             <td
                               key={`min-AL-${category.person_category_id}`}
@@ -694,7 +645,7 @@ function PremiumsTable() {
                             if ((vehicle.vehicle_id === 'A7' || vehicle.vehicle_id === 'B4') && category.person_type !== 'juridica') {
                               const colors = company.is_reference 
                                 ? { bg: 'bg-blue-50', empty: 'text-gray-500' }
-                                : companyColors[company.company_id] || { bg: 'bg-white', empty: 'text-gray-500' }
+                                : getCompanyColor(company)
                               return (
                                 <td
                                   key={`${company.company_id}-CH-${category.person_category_id}`}
@@ -708,7 +659,7 @@ function PremiumsTable() {
                             const value = getPremiumValue(company, cellId)
                             const cellColors = company.is_reference 
                               ? { bg: 'bg-blue-50', text: 'text-gray-900' }
-                              : companyColors[company.company_id] || { bg: 'bg-white', text: 'text-gray-900' }
+                              : getCompanyColor(company)
                             return (
                               <td
                                 key={`${company.company_id}-CH-${category.person_category_id}`}
@@ -724,7 +675,7 @@ function PremiumsTable() {
                             if ((vehicle.vehicle_id === 'A7' || vehicle.vehicle_id === 'B4') && category.person_type !== 'juridica') {
                               const colors = company.is_reference 
                                 ? { bg: 'bg-blue-50', empty: 'text-gray-500' }
-                                : companyColors[company.company_id] || { bg: 'bg-white', empty: 'text-gray-500' }
+                                : getCompanyColor(company)
                               return (
                                 <td
                                   key={`${company.company_id}-AL-${category.person_category_id}`}
@@ -738,7 +689,7 @@ function PremiumsTable() {
                             const value = getPremiumValue(company, cellId)
                             const cellColors = company.is_reference 
                               ? { bg: 'bg-blue-50', text: 'text-gray-900' }
-                              : companyColors[company.company_id] || { bg: 'bg-white', text: 'text-gray-900' }
+                              : getCompanyColor(company)
                             return (
                               <td
                                 key={`${company.company_id}-AL-${category.person_category_id}`}

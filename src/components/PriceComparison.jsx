@@ -10,9 +10,9 @@ import {
 } from '../utils/dataLoader'
 
 const COMPARISON_PRESETS = [
-  { id: '2026-current', baseId: '2026', compareId: '2026-08-25', label: '2026 → 25 aug.' },
+  { id: '2026-current', baseId: '2026', compareId: '2026-aug', label: '2026 → august 2026' },
   { id: '2025-2026', baseId: '2025', compareId: '2026', label: '2025 → 2026' },
-  { id: '2025-current', baseId: '2025', compareId: '2026-08-25', label: '2025 → 25 aug.' }
+  { id: '2025-current', baseId: '2025', compareId: '2026-aug', label: '2025 → august 2026' }
 ]
 
 function PriceComparison() {
@@ -23,9 +23,9 @@ function PriceComparison() {
   const [comparisonMode, setComparisonMode] = useState('year') // 'year' or 'company'
   const [selectedCompany1, setSelectedCompany1] = useState('')
   const [selectedCompany2, setSelectedCompany2] = useState('')
-  const [selectedCompanyDatasetId, setSelectedCompanyDatasetId] = useState('2026-08-25')
+  const [selectedCompanyDatasetId, setSelectedCompanyDatasetId] = useState('2026-aug')
   const [baseDatasetId, setBaseDatasetId] = useState('2026')
-  const [compareDatasetId, setCompareDatasetId] = useState('2026-08-25')
+  const [compareDatasetId, setCompareDatasetId] = useState('2026-aug')
   const [loadingDatasetId, setLoadingDatasetId] = useState(null)
   const [loadError, setLoadError] = useState(null)
   const [showPercentage, setShowPercentage] = useState(true)

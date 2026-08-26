@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { getRcaCells, getPremiumValue, getAvailableYears, loadCompaniesForYear, reloadCompaniesForYear, getYearDisplayLabel } from '../utils/dataLoader'
+import { getCompanyColor, getCompanyShortName } from '../utils/companyColors'
+import CompanyColorLegend from './CompanyColorLegend'
 
 function TopCheapestTable() {
   const [companies, setCompanies] = useState([])
@@ -76,16 +78,6 @@ function TopCheapestTable() {
     ]
     return order.map(id => personCategories.find(cat => cat.person_category_id === id)).filter(Boolean)
   }, [personCategories])
-
-  // Company colors for visual distinction
-  const companyColors = useMemo(() => {
-    const colors = [
-      { bg: 'bg-emerald-50', border: 'border-emerald-300', text: 'text-emerald-800', badge: 'bg-emerald-100 text-emerald-700', rank: 'bg-emerald-500' },
-      { bg: 'bg-amber-50', border: 'border-amber-300', text: 'text-amber-800', badge: 'bg-amber-100 text-amber-700', rank: 'bg-amber-500' },
-      { bg: 'bg-rose-50', border: 'border-rose-300', text: 'text-rose-800', badge: 'bg-rose-100 text-rose-700', rank: 'bg-rose-400' },
-    ]
-    return colors
-  }, [])
 
   // Get top 3 cheapest companies for a given cell
   const getTop3Cheapest = (cellId) => {
@@ -205,12 +197,6 @@ function TopCheapestTable() {
     return vehicle.description || vehicle.vehicle_id
   }
 
-  const getCompanyShortName = (companyName) => {
-    const words = companyName.split(' ')
-    if (words.length === 1) return companyName.substring(0, 8).toUpperCase()
-    return words[0].toUpperCase()
-  }
-
   const renderTop3Cell = (cellId, vehicleId, territoryId, personCategoryId) => {
     const top3 = getTop3Cheapest(cellId)
     const isExpanded = expandedCell === cellId
@@ -230,14 +216,15 @@ function TopCheapestTable() {
       >
         <div className="space-y-0.5">
           {top3.map((item, index) => {
-            const colorScheme = companyColors[index]
+            const colorScheme = getCompanyColor(item.company)
+            const rankTone = ['bg-slate-700', 'bg-slate-500', 'bg-slate-400'][index]
             return (
               <div 
                 key={item.companyId}
                 className={`flex items-center justify-between gap-1 px-1.5 py-0.5 rounded ${colorScheme.bg} ${colorScheme.border} border`}
               >
                 <div className="flex items-center gap-1 min-w-0">
-                  <span className={`flex-shrink-0 w-4 h-4 rounded-full ${colorScheme.rank} text-white text-[10px] font-bold flex items-center justify-center`}>
+                  <span className={`flex-shrink-0 w-4 h-4 rounded-full ${rankTone} text-white text-[10px] font-bold flex items-center justify-center`}>
                     {index + 1}
                   </span>
                   <span className={`font-medium ${colorScheme.text} truncate text-[11px]`}>
@@ -270,14 +257,15 @@ function TopCheapestTable() {
             </div>
             <div className="space-y-2">
               {top3.map((item, index) => {
-                const colorScheme = companyColors[index]
+                const colorScheme = getCompanyColor(item.company)
+                const rankTone = ['bg-slate-700', 'bg-slate-500', 'bg-slate-400'][index]
                 return (
                   <div 
                     key={item.companyId}
                     className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg ${colorScheme.bg} ${colorScheme.border} border`}
                   >
                     <div className="flex items-center gap-2">
-                      <span className={`w-6 h-6 rounded-full ${colorScheme.rank} text-white text-xs font-bold flex items-center justify-center`}>
+                      <span className={`w-6 h-6 rounded-full ${rankTone} text-white text-xs font-bold flex items-center justify-center`}>
                         {index + 1}
                       </span>
                       <span className={`font-semibold ${colorScheme.text} text-sm`}>
@@ -340,20 +328,23 @@ function TopCheapestTable() {
         )}
         
         {/* Legend */}
-        <div className="flex flex-wrap items-center gap-4 mb-4 p-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl border border-slate-200">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Legendă:</span>
-          <div className="flex items-center gap-1.5">
-            <span className="w-5 h-5 rounded-full bg-emerald-500 text-white text-[10px] font-bold flex items-center justify-center">1</span>
-            <span className="text-xs font-medium text-slate-600">Cel mai ieftin</span>
+        <div className="mb-4 p-3 bg-slate-50 rounded-xl border border-slate-200">
+          <div className="flex flex-wrap items-center gap-4 mb-3">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Loc:</span>
+            <div className="flex items-center gap-1.5">
+              <span className="w-5 h-5 rounded-full bg-slate-700 text-white text-[10px] font-bold flex items-center justify-center">1</span>
+              <span className="text-xs font-medium text-slate-600">Cel mai ieftin</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-5 h-5 rounded-full bg-slate-500 text-white text-[10px] font-bold flex items-center justify-center">2</span>
+              <span className="text-xs font-medium text-slate-600">Al doilea</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-5 h-5 rounded-full bg-slate-400 text-white text-[10px] font-bold flex items-center justify-center">3</span>
+              <span className="text-xs font-medium text-slate-600">Al treilea</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center">2</span>
-            <span className="text-xs font-medium text-slate-600">Al doilea</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-5 h-5 rounded-full bg-rose-400 text-white text-[10px] font-bold flex items-center justify-center">3</span>
-            <span className="text-xs font-medium text-slate-600">Al treilea</span>
-          </div>
+          <CompanyColorLegend companies={companies} className="" />
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">

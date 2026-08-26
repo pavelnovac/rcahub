@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getRcaCells, saveCompanyByYear, deleteCompanyByYear, loadCompaniesForYear, getYearStorageKey, getYearDisplayLabel } from '../utils/dataLoader'
+import { getRcaCells, saveCompanyByYear, deleteCompanyByYear, loadCompaniesForYear, getYearStorageKey, getYearDisplayLabel, getOperationalDatasetForYear } from '../utils/dataLoader'
 
 function Settings() {
   const [companies, setCompanies] = useState([])
@@ -151,7 +151,7 @@ function Settings() {
               <div className="text-sm text-gray-600">Gestionezi datele pentru:</div>
               <div className="text-xl font-bold text-blue-700">{getYearDisplayLabel(selectedYear)}</div>
               <div className="text-xs text-gray-500 mt-1">
-                {selectedYear === 2025 ? 'Date 2025' : 'Prețuri curente (25 august 2026)'}
+                {getOperationalDatasetForYear(selectedYear).description}
               </div>
             </div>
           </div>

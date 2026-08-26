@@ -185,12 +185,12 @@ export const PRICE_DATASETS = [
     storageKey: 2026
   },
   {
-    id: '2026-08-25',
-    label: '2026 — 25 august',
-    shortLabel: '25 aug.',
-    description: 'Prețuri curente (25 august 2026)',
-    fileName: 'all_companies_2026-08-25.json',
-    storageKey: '2026-08-25'
+    id: '2026-aug',
+    label: '2026 — august',
+    shortLabel: 'august',
+    description: 'Prețuri august 2026',
+    fileName: 'all_companies_2026-08-26.json',
+    storageKey: '2026-aug'
   }
 ]
 
@@ -204,7 +204,7 @@ export function getPriceDataset(datasetId) {
  */
 export function getOperationalDatasetForYear(year) {
   if (year === 2025) return getPriceDataset('2025')
-  if (year === 2026) return getPriceDataset('2026-08-25')
+  if (year === 2026) return getPriceDataset('2026-aug')
   return {
     id: String(year),
     label: String(year),
