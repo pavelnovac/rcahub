@@ -189,7 +189,7 @@ export const PRICE_DATASETS = [
     label: '2026 — august',
     shortLabel: 'august',
     description: 'Prețuri august 2026',
-    fileName: 'all_companies_2026-08-26.json',
+    fileName: 'all_companies_2026-09-04.json',
     storageKey: '2026-aug'
   }
 ]
