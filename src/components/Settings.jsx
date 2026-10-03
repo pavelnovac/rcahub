@@ -4,7 +4,7 @@ import { getRcaCells, saveCompanyByYear, deleteCompanyByYear, loadCompaniesForYe
 function Settings() {
   const [companies, setCompanies] = useState([])
   const [rcaCells, setRcaCells] = useState(null)
-  const [selectedYear, setSelectedYear] = useState(2025)
+  const [selectedYear, setSelectedYear] = useState(2026)
   const [editingCompany, setEditingCompany] = useState(null)
   const [showAddForm, setShowAddForm] = useState(false)
   const [formData, setFormData] = useState({
@@ -145,6 +145,7 @@ function Settings() {
               >
                 <option value={2025}>2025</option>
                 <option value={2026}>{getYearDisplayLabel(2026)}</option>
+                <option value={2027}>{getYearDisplayLabel(2027)}</option>
               </select>
             </div>
             <div className="text-right">

@@ -50,9 +50,19 @@ if (!bmData) {
   process.exit(1);
 }
 
+// Păstrează identitatea folosită în seturile anterioare, ca filtrarea
+// și comparația între perioade să potrivească aceeași companie.
+const COMPANY_ALIASES = {
+  'MOLDASIG VIENNA INSURANCE GROUP S.A.': 'MOLDASIG S.A.'
+}
+
+function canonicalCompanyName(name) {
+  return COMPANY_ALIASES[name] || name
+}
+
 // Helper function to convert company name to ID
 function companyNameToId(name) {
-  return name
+  return canonicalCompanyName(name)
     .toLowerCase()
     .replace(/\s+/g, '_')
     .replace(/[^a-z0-9_]/g, '')
@@ -64,7 +74,8 @@ function companyNameToId(name) {
 const companiesMap = new Map();
 
 for (const [cellId, companiesData] of Object.entries(bmData)) {
-  for (const [companyName, value] of Object.entries(companiesData)) {
+  for (const [rawCompanyName, value] of Object.entries(companiesData)) {
+    const companyName = canonicalCompanyName(rawCompanyName);
     const companyId = companyNameToId(companyName);
     
     if (!companiesMap.has(companyId)) {

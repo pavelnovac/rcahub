@@ -3,6 +3,7 @@ import {
   getRcaCells,
   getPremiumValue,
   PRICE_DATASETS,
+  CURRENT_PRICE_DATASET_ID,
   getPriceDataset,
   hasCompanyPremiums,
   loadDatasetCompanies,
@@ -10,9 +11,12 @@ import {
 } from '../utils/dataLoader'
 
 const COMPARISON_PRESETS = [
-  { id: '2026-current', baseId: '2026', compareId: '2026-aug', label: '2026 → august 2026' },
+  { id: 'aug-oct', baseId: '2026-aug', compareId: '2026-oct', label: 'august → octombrie' },
+  { id: '2026-oct', baseId: '2026', compareId: '2026-oct', label: '2026 → octombrie' },
+  { id: '2025-oct', baseId: '2025', compareId: '2026-oct', label: '2025 → octombrie' },
+  { id: '2026-current', baseId: '2026', compareId: '2026-aug', label: '2026 → august' },
   { id: '2025-2026', baseId: '2025', compareId: '2026', label: '2025 → 2026' },
-  { id: '2025-current', baseId: '2025', compareId: '2026-aug', label: '2025 → august 2026' }
+  { id: '2025-current', baseId: '2025', compareId: '2026-aug', label: '2025 → august' }
 ]
 
 function PriceComparison() {
@@ -23,9 +27,9 @@ function PriceComparison() {
   const [comparisonMode, setComparisonMode] = useState('year') // 'year' or 'company'
   const [selectedCompany1, setSelectedCompany1] = useState('')
   const [selectedCompany2, setSelectedCompany2] = useState('')
-  const [selectedCompanyDatasetId, setSelectedCompanyDatasetId] = useState('2026-aug')
-  const [baseDatasetId, setBaseDatasetId] = useState('2026')
-  const [compareDatasetId, setCompareDatasetId] = useState('2026-aug')
+  const [selectedCompanyDatasetId, setSelectedCompanyDatasetId] = useState(CURRENT_PRICE_DATASET_ID)
+  const [baseDatasetId, setBaseDatasetId] = useState('2026-aug')
+  const [compareDatasetId, setCompareDatasetId] = useState(CURRENT_PRICE_DATASET_ID)
   const [loadingDatasetId, setLoadingDatasetId] = useState(null)
   const [loadError, setLoadError] = useState(null)
   const [showPercentage, setShowPercentage] = useState(true)
@@ -550,7 +554,7 @@ function PriceComparison() {
             Pentru a compara prețurile, trebuie să încărcați datele pentru ambele seturi selectate.
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
             {PRICE_DATASETS.map(dataset => {
               const loaded = hasCompanyPremiums(companiesByDataset[dataset.id] || [])
               return (
@@ -1125,7 +1129,7 @@ function PriceComparison() {
                       }
                       setSelectedCompany('min')
                     }}
-                    className="block w-56 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="block w-64 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   >
                     {PRICE_DATASETS.map(dataset => (
                       <option key={dataset.id} value={dataset.id}>
@@ -1149,7 +1153,7 @@ function PriceComparison() {
                       }
                       setSelectedCompany('min')
                     }}
-                    className="block w-56 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="block w-64 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   >
                     {PRICE_DATASETS.map(dataset => (
                       <option key={dataset.id} value={dataset.id}>

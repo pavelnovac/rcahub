@@ -43,8 +43,8 @@ export async function loadCompaniesByYear(year) {
   const stored = localStorage.getItem(yearKey)
   const customCompanies = stored ? JSON.parse(stored) : []
   
-  // BNM reference rates apply to all 2026 snapshots
-  if (year === 2026 || String(year).startsWith('2026')) {
+  // BNM reference rates apply to 2026 snapshots and to 2027, which uses the same premiums
+  if (year === 2026 || year === 2027 || String(year).startsWith('2026')) {
     const bnm = await loadBnmData()
     return [bnm, ...customCompanies]
   }
@@ -191,8 +191,18 @@ export const PRICE_DATASETS = [
     description: 'Prețuri august 2026',
     fileName: 'all_companies_2026-09-04.json',
     storageKey: '2026-aug'
+  },
+  {
+    id: '2026-oct',
+    label: '4 octombrie 2026 / 2027',
+    shortLabel: 'octombrie',
+    description: 'Prețuri din 4 octombrie 2026, valabile până la sfârșitul anului 2026 și în 2027',
+    fileName: 'all_companies_2026-10-04.json',
+    storageKey: '2026-oct'
   }
 ]
+
+export const CURRENT_PRICE_DATASET_ID = '2026-oct'
 
 export function getPriceDataset(datasetId) {
   return PRICE_DATASETS.find(dataset => dataset.id === datasetId) || null
@@ -200,11 +210,12 @@ export function getPriceDataset(datasetId) {
 
 /**
  * Setul de date folosit pe paginile operaționale (rate, top 3, setări)
- * când utilizatorul alege un an. Pentru 2026 folosim cel mai recent snapshot.
+ * când utilizatorul alege un an. 2026 și 2027 folosesc prețurile din 4 octombrie.
  */
 export function getOperationalDatasetForYear(year) {
-  if (year === 2025) return getPriceDataset('2025')
-  if (year === 2026) return getPriceDataset('2026-aug')
+  const numericYear = Number(year)
+  if (numericYear === 2025) return getPriceDataset('2025')
+  if (numericYear === 2026 || numericYear === 2027) return getPriceDataset(CURRENT_PRICE_DATASET_ID)
   return {
     id: String(year),
     label: String(year),
@@ -216,10 +227,12 @@ export function getOperationalDatasetForYear(year) {
 }
 
 export function getYearDisplayLabel(year) {
-  if (year === 2026) {
+  const numericYear = Number(year)
+  if (numericYear === 2026) {
     const dataset = getOperationalDatasetForYear(2026)
     return `2026 (${dataset.shortLabel})`
   }
+  if (numericYear === 2027) return '2027'
   return String(year)
 }
 

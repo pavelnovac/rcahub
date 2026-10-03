@@ -325,7 +325,8 @@ function PremiumsTable() {
             >
               <option value={2025}>2025</option>
               <option value={2026}>{getYearDisplayLabel(2026)}</option>
-              {availableYears.filter(y => y !== 2025 && y !== 2026).map(year => (
+              <option value={2027}>{getYearDisplayLabel(2027)}</option>
+              {availableYears.filter(y => y !== 2025 && y !== 2026 && y !== 2027).map(year => (
                 <option key={year} value={year}>
                   {year}
                 </option>

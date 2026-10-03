@@ -1,93 +1,95 @@
+// Nuanțe la distanță mare pe cerc, cu fundaluri saturate.
+// Verzi, albastre și violeturi vecine se confundau pe treptele pale *-50.
 const PALETTE = {
   ACORD: {
-    bg: 'bg-blue-50',
-    border: 'border-blue-300',
-    text: 'text-blue-800',
-    header: 'bg-blue-100',
-    short: 'text-blue-700',
-    badge: 'bg-blue-100 text-blue-700',
-    rank: 'bg-blue-600',
-    empty: 'text-blue-400'
+    bg: 'bg-[#96a6f8]',
+    border: 'border-[#4158c8]',
+    text: 'text-[#111e5f]',
+    header: 'bg-[#748bfb]',
+    short: 'text-[#111e5f]',
+    badge: 'bg-[#748bfb] text-[#111e5f]',
+    rank: 'bg-[#1933b3]',
+    empty: 'text-[#4656a4]'
   },
   ASTERRA: {
-    bg: 'bg-violet-50',
-    border: 'border-violet-300',
-    text: 'text-violet-800',
-    header: 'bg-violet-100',
-    short: 'text-violet-700',
-    badge: 'bg-violet-100 text-violet-700',
-    rank: 'bg-violet-600',
-    empty: 'text-violet-400'
+    bg: 'bg-[#e0abf7]',
+    border: 'border-[#a041c8]',
+    text: 'text-[#48115f]',
+    header: 'bg-[#d78cf8]',
+    short: 'text-[#48115f]',
+    badge: 'bg-[#d78cf8] text-[#48115f]',
+    rank: 'bg-[#8519b3]',
+    empty: 'text-[#8846a4]'
   },
   DONARIS: {
-    bg: 'bg-orange-50',
-    border: 'border-orange-300',
-    text: 'text-orange-800',
-    header: 'bg-orange-100',
-    short: 'text-orange-700',
-    badge: 'bg-orange-100 text-orange-700',
-    rank: 'bg-orange-500',
-    empty: 'text-orange-400'
+    bg: 'bg-[#facca8]',
+    border: 'border-[#c87c41]',
+    text: 'text-[#5f3311]',
+    header: 'bg-[#fcba88]',
+    short: 'text-[#5f3311]',
+    badge: 'bg-[#fcba88] text-[#5f3311]',
+    rank: 'bg-[#b35c19]',
+    empty: 'text-[#a46f46]'
   },
   GENERAL: {
-    bg: 'bg-pink-50',
-    border: 'border-pink-300',
-    text: 'text-pink-800',
-    header: 'bg-pink-100',
-    short: 'text-pink-700',
-    badge: 'bg-pink-100 text-pink-700',
-    rank: 'bg-pink-500',
-    empty: 'text-pink-400'
+    bg: 'bg-[#f5addb]',
+    border: 'border-[#c84197]',
+    text: 'text-[#5f1143]',
+    header: 'bg-[#f58ed0]',
+    short: 'text-[#5f1143]',
+    badge: 'bg-[#f58ed0] text-[#5f1143]',
+    rank: 'bg-[#b3197a]',
+    empty: 'text-[#a44682]'
   },
   GRAWE: {
-    bg: 'bg-amber-50',
-    border: 'border-amber-300',
-    text: 'text-amber-900',
-    header: 'bg-amber-100',
-    short: 'text-amber-800',
-    badge: 'bg-amber-100 text-amber-800',
-    rank: 'bg-amber-500',
-    empty: 'text-amber-400'
+    bg: 'bg-[#fbeb9d]',
+    border: 'border-[#c8b141]',
+    text: 'text-[#5f5211]',
+    header: 'bg-[#fce77e]',
+    short: 'text-[#5f5211]',
+    badge: 'bg-[#fce77e] text-[#5f5211]',
+    rank: 'bg-[#b39919]',
+    empty: 'text-[#a49546]'
   },
   INTACT: {
-    bg: 'bg-teal-50',
-    border: 'border-teal-300',
-    text: 'text-teal-800',
-    header: 'bg-teal-100',
-    short: 'text-teal-700',
-    badge: 'bg-teal-100 text-teal-700',
-    rank: 'bg-teal-600',
-    empty: 'text-teal-400'
+    bg: 'bg-[#7ddea0]',
+    border: 'border-[#1f9a4a]',
+    text: 'text-[#0c4a22]',
+    header: 'bg-[#5ed488]',
+    short: 'text-[#0c4a22]',
+    badge: 'bg-[#5ed488] text-[#0c4a22]',
+    rank: 'bg-[#148a3a]',
+    empty: 'text-[#3d8a58]'
   },
   MOLDASIG: {
-    bg: 'bg-emerald-50',
-    border: 'border-emerald-300',
-    text: 'text-emerald-800',
-    header: 'bg-emerald-100',
-    short: 'text-emerald-700',
-    badge: 'bg-emerald-100 text-emerald-700',
-    rank: 'bg-emerald-600',
-    empty: 'text-emerald-400'
+    bg: 'bg-[#f599a1]',
+    border: 'border-[#c8414c]',
+    text: 'text-[#5f1117]',
+    header: 'bg-[#f67983]',
+    short: 'text-[#5f1117]',
+    badge: 'bg-[#f67983] text-[#5f1117]',
+    rank: 'bg-[#b31926]',
+    empty: 'text-[#a4464e]'
   },
   MOLDCARGO: {
-    bg: 'bg-cyan-50',
-    border: 'border-cyan-300',
-    text: 'text-cyan-800',
-    header: 'bg-cyan-100',
-    short: 'text-cyan-700',
-    badge: 'bg-cyan-100 text-cyan-700',
-    rank: 'bg-cyan-600',
-    empty: 'text-cyan-400'
+    bg: 'bg-[#7ee8e4]',
+    border: 'border-[#1a9e96]',
+    text: 'text-[#0d4f4c]',
+    header: 'bg-[#5adfd9]',
+    short: 'text-[#0d4f4c]',
+    badge: 'bg-[#5adfd9] text-[#0d4f4c]',
+    rank: 'bg-[#0e8f88]',
+    empty: 'text-[#3d8a86]'
   },
   TRANSELIT: {
-    bg: 'bg-indigo-50',
-    border: 'border-indigo-300',
-    text: 'text-indigo-800',
-    header: 'bg-indigo-100',
-    short: 'text-indigo-700',
-    badge: 'bg-indigo-100 text-indigo-700',
-    rank: 'bg-indigo-600',
-    empty: 'text-indigo-400'
+    bg: 'bg-[#d4f07a]',
+    border: 'border-[#8aaa1e]',
+    text: 'text-[#3d520c]',
+    header: 'bg-[#c6ea55]',
+    short: 'text-[#3d520c]',
+    badge: 'bg-[#c6ea55] text-[#3d520c]',
+    rank: 'bg-[#6f9412]',
+    empty: 'text-[#6a8430]'
   }
 }
 
