@@ -242,37 +242,37 @@ function PremiumsTable() {
     return companyPriority[company?.company_name] || 999
   }
 
-  // Funcție pentru a găsi valoarea minimă și compania corespunzătoare pentru o celulă
-  // Exclude compania BNM (is_reference: true) din calcul
-  const getMinValueAndCompany = (cellId) => {
-    let minValue = Infinity
-    let minCompany = null
+  const roundPrice = (value) => Math.round(value * 100) / 100
+
+  // Prețul minim al ofertei pentru o celulă și toate companiile care îl au.
+  // Rata BNM (is_reference) nu intră în calcul.
+  const getMinOffers = (cellId) => {
+    const offers = []
 
     companies.forEach(company => {
-      // Exclude compania de referință BNM
-      if (company.is_reference) {
-        return
-      }
-      
+      if (company.is_reference) return
+
       const value = getPremiumValue(company, cellId)
-      if (value !== null) {
-        if (value < minValue) {
-          minValue = value
-          minCompany = company
-        } else if (value === minValue) {
-          // Tie-breaker: prefer company with higher priority (lower number)
-          if (getCompanyPriority(company) < getCompanyPriority(minCompany)) {
-            minCompany = company
-          }
-        }
+      if (value !== null && value !== undefined) {
+        offers.push({ company, value })
       }
     })
 
-    if (minValue === Infinity) {
-      return { value: null, company: null }
+    if (offers.length === 0) {
+      return { value: null, companies: [] }
     }
 
-    return { value: minValue, company: minCompany }
+    const minValue = Math.min(...offers.map(offer => offer.value))
+    const minRounded = roundPrice(minValue)
+    const cheapest = offers
+      .filter(offer => roundPrice(offer.value) === minRounded)
+      .sort((a, b) => {
+        const priorityDiff = getCompanyPriority(a.company) - getCompanyPriority(b.company)
+        if (priorityDiff !== 0) return priorityDiff
+        return a.company.company_name.localeCompare(b.company.company_name, 'ro')
+      })
+
+    return { value: minValue, companies: cheapest.map(offer => offer.company) }
   }
 
   return (
@@ -280,7 +280,7 @@ function PremiumsTable() {
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold text-gray-900">
-            Prime de referință RCA internă - {getYearDisplayLabel(selectedYear)}
+            Preț minim per ofertă - {getYearDisplayLabel(selectedYear)}
           </h2>
           <button
             onClick={handleLoadCompaniesFromFile}
@@ -343,8 +343,8 @@ function PremiumsTable() {
               onChange={(e) => setSelectedCompany(e.target.value)}
               className="block w-full max-w-xs rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             >
-              <option value="min">Valori minime (implicit)</option>
-              {companies.map(company => (
+              <option value="min">Preț minim per ofertă</option>
+              {companies.filter(company => !company.is_reference).map(company => (
                 <option key={company.company_id} value={company.company_id}>
                   {company.company_name}
                 </option>
@@ -391,8 +391,8 @@ function PremiumsTable() {
                     colSpan="10"
                     className="px-2 py-2 text-center text-xs font-semibold text-gray-700 border-r border-gray-300 bg-green-50"
                   >
-                    <div className="font-bold">Valori Minime</div>
-                    <div className="text-xs text-green-700 mt-1 font-normal">(Compania cu cel mai mic preț)</div>
+                    <div className="font-bold">Preț minim</div>
+                    <div className="text-xs text-green-700 mt-1 font-normal">(Companiile cu cea mai mică ofertă)</div>
                   </th>
                 ) : (
                   displayedCompanies.map(company => {
@@ -588,20 +588,23 @@ function PremiumsTable() {
                             )
                           }
                           const cellId = getCellId(vehicle.vehicle_id, 'CH', category.person_category_id)
-                          const { value, company: minCompany } = getMinValueAndCompany(cellId)
-                          // Obține culoarea companiei cu valoarea minimă
-                          const minColors = getCompanyColor(minCompany)
+                          const { value, companies: minCompanies } = getMinOffers(cellId)
+                          const minColors = getCompanyColor(minCompanies[0] || null)
                           return (
                             <td
                               key={`min-CH-${category.person_category_id}`}
                               className={`px-3 py-2 text-sm text-center border-r border-gray-200 ${minColors.bg}`}
                             >
                               <div className={`font-semibold ${minColors.text}`}>{formatCurrency(value)}</div>
-                              {minCompany && (
-                                <div className={`text-xs font-medium mt-1 ${minColors.short || minColors.text}`}>
+                              {minCompanies.map(minCompany => (
+                                <div
+                                  key={minCompany.company_id}
+                                  title={minCompany.company_name}
+                                  className={`text-xs font-medium mt-1 ${minColors.short || minColors.text}`}
+                                >
                                   {getCompanyShortName(minCompany.company_name)}
                                 </div>
-                              )}
+                              ))}
                             </td>
                           )
                         })}
@@ -619,20 +622,23 @@ function PremiumsTable() {
                             )
                           }
                           const cellId = getCellId(vehicle.vehicle_id, 'AL', category.person_category_id)
-                          const { value, company: minCompany } = getMinValueAndCompany(cellId)
-                          // Obține culoarea companiei cu valoarea minimă
-                          const minColors = getCompanyColor(minCompany)
+                          const { value, companies: minCompanies } = getMinOffers(cellId)
+                          const minColors = getCompanyColor(minCompanies[0] || null)
                           return (
                             <td
                               key={`min-AL-${category.person_category_id}`}
                               className={`px-3 py-2 text-center border-r border-gray-200 ${minColors.bg}`}
                             >
                               <div className={`text-sm font-semibold ${minColors.text}`}>{formatCurrency(value)}</div>
-                              {minCompany && (
-                                <div className={`text-xs font-medium mt-1 ${minColors.short || minColors.text}`}>
+                              {minCompanies.map(minCompany => (
+                                <div
+                                  key={minCompany.company_id}
+                                  title={minCompany.company_name}
+                                  className={`text-xs font-medium mt-1 ${minColors.short || minColors.text}`}
+                                >
                                   {getCompanyShortName(minCompany.company_name)}
                                 </div>
-                              )}
+                              ))}
                             </td>
                           )
                         })}
