@@ -34,7 +34,6 @@ function GreenCardTable() {
   const [cells, setCells] = useState(null)
   const [companies, setCompanies] = useState([])
   const [selectedZone, setSelectedZone] = useState('Z3')
-  const [selectedTowing, setSelectedTowing] = useState('A')
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
 
@@ -57,9 +56,8 @@ function GreenCardTable() {
     loadData()
   }, [])
 
-  const categories = cells?.categories || []
+  const categories = (cells?.categories || []).filter(category => category.id !== 'F')
   const zones = cells?.zones || []
-  const towingCategories = cells?.towing_categories || []
 
   const insurers = useMemo(
     () => companies
@@ -116,35 +114,17 @@ function GreenCardTable() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 max-w-3xl">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Zonă</label>
-            <select
-              value={selectedZone}
-              onChange={(event) => setSelectedZone(event.target.value)}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            >
-              {zones.map(zone => (
-                <option key={zone.id} value={zone.id}>{zone.label}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Remorcă tractată de
-            </label>
-            <select
-              value={selectedTowing}
-              onChange={(event) => setSelectedTowing(event.target.value)}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            >
-              {towingCategories.map(category => (
-                <option key={category.id} value={category.id}>
-                  {category.id} — {category.label}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div className="mb-4 max-w-xs">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Zonă</label>
+          <select
+            value={selectedZone}
+            onChange={(event) => setSelectedZone(event.target.value)}
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          >
+            {zones.map(zone => (
+              <option key={zone.id} value={zone.id}>{zone.label}</option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -180,10 +160,7 @@ function GreenCardTable() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {categories.map(category => {
-                const towing = category.id === 'F'
-                  ? towingCategories.find(item => item.id === selectedTowing)
-                  : null
-                const cellId = greenCardCellId(category.id, selectedZone, PERIOD_15_DAYS, selectedTowing)
+                const cellId = greenCardCellId(category.id, selectedZone, PERIOD_15_DAYS)
                 const offers = insurers
                   .map(company => ({ company, value: getGreenCardPremium(company, cellId) }))
                   .filter(offer => offer.value !== null && offer.value !== undefined)
@@ -193,11 +170,7 @@ function GreenCardTable() {
                   <tr key={category.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 text-sm font-medium text-gray-900 sticky left-0 bg-white z-10 border-r border-gray-300">
                       <div className="font-semibold">{category.id}</div>
-                      <div className="text-xs text-gray-600 mt-0.5">
-                        {category.id === 'F' && towing
-                          ? `Remorcă tractată de ${towing.label}`
-                          : category.label}
-                      </div>
+                      <div className="text-xs text-gray-600 mt-0.5">{category.label}</div>
                     </td>
                     {insurers.map(company => {
                       const value = getGreenCardPremium(company, cellId)
