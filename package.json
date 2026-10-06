@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build && cp dist/index.html dist/404.html",
     "preview": "vite preview",
-    "convert-data": "node scripts/convert-collected-data.js"
+    "convert-data": "node scripts/convert-collected-data.js",
+    "convert-green-card": "node scripts/convert-green-card-data.js"
   },
   "dependencies": {
     "react": "^18.2.0",

@@ -1,0 +1,147 @@
+{
+  "collected_at": "2026-10-06T12:40:23.026Z",
+  "source": "https://rca.bnm.md/online",
+  "currency": "MDL",
+  "categories": [
+    {
+      "id": "A",
+      "label": "Autoturisme",
+      "description": "(A) Autoturisme"
+    },
+    {
+      "id": "C1",
+      "label": "Camioane < 3.5 tone",
+      "description": "(C1) Camioane < 3.5 tone"
+    },
+    {
+      "id": "C2",
+      "label": "Camioane și tractoare > 3.5 tone",
+      "description": "(C2) Camioane și tractoare > 3.5 tone"
+    },
+    {
+      "id": "E1",
+      "label": "Transport < 17 locuri",
+      "description": "(E1) Transport de persoane < 17 locuri"
+    },
+    {
+      "id": "E2",
+      "label": "Transport > 17 locuri",
+      "description": "(E2) Transport de persoane > 17 locuri"
+    },
+    {
+      "id": "B",
+      "label": "Motociclete",
+      "description": "(B) Motociclete"
+    },
+    {
+      "id": "F",
+      "label": "Remorcă",
+      "description": "(F) Remorcă —  prima depinde de vehiculul care tractează"
+    }
+  ],
+  "zones": [
+    {
+      "id": "Z1",
+      "label": "Zona 1 — Ucraina",
+      "short": "Ucraina"
+    },
+    {
+      "id": "Z3",
+      "label": "Zona 3 — Toate țările",
+      "short": "Toate țările"
+    }
+  ],
+  "periods": [
+    {
+      "id": "D15",
+      "label": "15 zile",
+      "short": "15 zile"
+    },
+    {
+      "id": "M1",
+      "label": "1 lună",
+      "short": "1 lună"
+    },
+    {
+      "id": "M2",
+      "label": "2 luni",
+      "short": "2 luni"
+    },
+    {
+      "id": "M3",
+      "label": "3 luni",
+      "short": "3 luni"
+    },
+    {
+      "id": "M4",
+      "label": "4 luni",
+      "short": "4 luni"
+    },
+    {
+      "id": "M5",
+      "label": "5 luni",
+      "short": "5 luni"
+    },
+    {
+      "id": "M6",
+      "label": "6 luni",
+      "short": "6 luni"
+    },
+    {
+      "id": "M7",
+      "label": "7 luni",
+      "short": "7 luni"
+    },
+    {
+      "id": "M8",
+      "label": "8 luni",
+      "short": "8 luni"
+    },
+    {
+      "id": "M9",
+      "label": "9 luni",
+      "short": "9 luni"
+    },
+    {
+      "id": "M10",
+      "label": "10 luni",
+      "short": "10 luni"
+    },
+    {
+      "id": "M11",
+      "label": "11 luni",
+      "short": "11 luni"
+    },
+    {
+      "id": "M12",
+      "label": "12 luni",
+      "short": "12 luni"
+    }
+  ],
+  "towing_categories": [
+    {
+      "id": "A",
+      "label": "Autoturisme"
+    },
+    {
+      "id": "C1",
+      "label": "Camioane < 3.5 tone"
+    },
+    {
+      "id": "C2",
+      "label": "Camioane și tractoare > 3.5 tone"
+    },
+    {
+      "id": "E1",
+      "label": "Transport < 17 locuri"
+    },
+    {
+      "id": "E2",
+      "label": "Transport > 17 locuri"
+    },
+    {
+      "id": "B",
+      "label": "Motociclete"
+    }
+  ]
+}
