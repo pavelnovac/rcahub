@@ -30,6 +30,17 @@ function roundPrice(value) {
   return Math.round(value * 100) / 100
 }
 
+function priceRank(value, offers) {
+  if (value === null || value === undefined) return null
+  const rounded = roundPrice(value)
+  const cheaperPrices = new Set(
+    offers
+      .map(offer => roundPrice(offer.value))
+      .filter(price => price < rounded)
+  )
+  return cheaperPrices.size + 1
+}
+
 function GreenCardTable() {
   const [cells, setCells] = useState(null)
   const [companies, setCompanies] = useState([])
@@ -164,7 +175,6 @@ function GreenCardTable() {
                 const offers = insurers
                   .map(company => ({ company, value: getGreenCardPremium(company, cellId) }))
                   .filter(offer => offer.value !== null && offer.value !== undefined)
-                const minValue = offers.length ? Math.min(...offers.map(offer => offer.value)) : null
 
                 return (
                   <tr key={category.id} className="hover:bg-gray-50">
@@ -175,15 +185,15 @@ function GreenCardTable() {
                     {insurers.map(company => {
                       const value = getGreenCardPremium(company, cellId)
                       const colors = getCompanyColor(company)
-                      const isMin = value !== null && minValue !== null && roundPrice(value) === roundPrice(minValue)
+                      const rank = priceRank(value, offers)
                       return (
                         <td
                           key={company.company_id}
-                          className={`px-3 py-3 text-center border-r border-gray-200 ${colors.bg} ${colors.text} ${isMin ? 'ring-2 ring-inset ring-gray-900' : ''}`}
+                          className={`px-3 py-3 text-center border-r border-gray-200 ${colors.bg} ${colors.text} ${rank === 1 ? 'ring-2 ring-inset ring-gray-900' : ''}`}
                         >
                           <div className="text-sm font-semibold">{formatCurrency(value)}</div>
-                          {isMin && (
-                            <div className="text-xs font-medium mt-1">minim</div>
+                          {rank !== null && (
+                            <div className="text-xs font-medium mt-1">locul {rank}</div>
                           )}
                         </td>
                       )
