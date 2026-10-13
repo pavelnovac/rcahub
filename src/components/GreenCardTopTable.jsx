@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { getCompanyColor, getCompanyShortName } from '../utils/companyColors'
 import CompanyColorLegend from './CompanyColorLegend'
 import { getGreenCardPremium, greenCardCellId, loadGreenCardData } from '../utils/greenCardLoader'
@@ -34,10 +34,11 @@ function priceRank(value, offers) {
   return cheaperPrices.size + 1
 }
 
-const RANK_TONE = {
-  1: 'bg-slate-700',
-  2: 'bg-slate-500',
-  3: 'bg-slate-400'
+function rankTone(rank) {
+  if (rank === 1) return 'bg-slate-700 text-white'
+  if (rank === 2) return 'bg-slate-500 text-white'
+  if (rank === 3) return 'bg-slate-400 text-white'
+  return 'bg-slate-200 text-slate-700'
 }
 
 function GreenCardTopTable() {
@@ -80,7 +81,7 @@ function GreenCardTopTable() {
   const rows = useMemo(() => {
     if (!cells) return []
 
-    const categories = (cells.categories || [])
+    return (cells.categories || [])
       .filter(category => category.id !== 'F')
       .map(category => ({
         key: category.id,
@@ -88,18 +89,9 @@ function GreenCardTopTable() {
         label: category.label,
         cellId: (zoneId) => greenCardCellId(category.id, zoneId, selectedPeriod)
       }))
-
-    const trailers = (cells.towing_categories || []).map(towing => ({
-      key: `F_${towing.id}`,
-      code: 'F',
-      label: `Remorcă · ${towing.label}`,
-      cellId: (zoneId) => greenCardCellId('F', zoneId, selectedPeriod, towing.id)
-    }))
-
-    return [...categories, ...trailers]
   }, [cells, selectedPeriod])
 
-  const getTopOffers = (cellId) => {
+  const getOffers = (cellId) => {
     const offers = insurers
       .map(company => ({
         company,
@@ -111,8 +103,7 @@ function GreenCardTopTable() {
 
     return offers
       .map(offer => ({ ...offer, rank: priceRank(offer.value, offers) }))
-      .filter(offer => offer.rank <= 3)
-      .sort((a, b) => a.rank - b.rank || a.companyName.localeCompare(b.companyName, 'ro'))
+      .sort((a, b) => a.value - b.value || a.companyName.localeCompare(b.companyName, 'ro'))
   }
 
   if (isLoading) {
@@ -137,10 +128,10 @@ function GreenCardTopTable() {
 
   const renderTopCell = (row, zone) => {
     const cellId = row.cellId(zone.id)
-    const topOffers = getTopOffers(cellId)
+    const offers = getOffers(cellId)
     const isExpanded = expandedCell === cellId
 
-    if (topOffers.length === 0) {
+    if (offers.length === 0) {
       return (
         <td key={cellId} className="px-3 py-3 text-sm text-center text-slate-400 border-r border-slate-200 bg-slate-50">
           -
@@ -155,7 +146,7 @@ function GreenCardTopTable() {
         onClick={() => setExpandedCell(isExpanded ? null : cellId)}
       >
         <div className={isExpanded ? 'space-y-1 w-full max-w-xl' : 'space-y-1 w-72 max-w-full'}>
-          {topOffers.map(item => {
+          {offers.map(item => {
             const colorScheme = getCompanyColor(item.company)
             return (
               <div
@@ -163,7 +154,7 @@ function GreenCardTopTable() {
                 className={`flex w-full items-center justify-between gap-2 px-2 py-1 rounded ${colorScheme.bg} ${colorScheme.border} border`}
               >
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <span className={`flex-shrink-0 w-4 h-4 rounded-full ${RANK_TONE[item.rank] || 'bg-slate-400'} text-white text-[10px] font-bold flex items-center justify-center`}>
+                  <span className={`flex-shrink-0 w-4 h-4 rounded-full ${rankTone(item.rank)} text-[10px] font-bold flex items-center justify-center`}>
                     {item.rank}
                   </span>
                   <span className={`min-w-0 font-medium ${colorScheme.text} ${isExpanded ? 'text-xs leading-tight' : 'truncate text-[11px]'}`}>
@@ -187,12 +178,12 @@ function GreenCardTopTable() {
         <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
           <div className="min-w-0 flex-1">
             <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-700 to-teal-600 bg-clip-text text-transparent">
-              Top 3 Carte Verde — {periodLabel}
+              Clasament Carte Verde — {periodLabel}
             </h2>
             <p className="text-slate-500 mt-1 text-sm">
-              Cele mai ieftine oferte pentru fiecare categorie, în {cells.currency || 'MDL'}
+              Toate companiile, ordonate după preț, pentru fiecare categorie, în {cells.currency || 'MDL'}
               {collectedLabel ? `, colectate la ${collectedLabel}` : ''}.
-              Ordinea companiilor este aceeași pentru toate perioadele.
+              Ordinea este aceeași pentru toate perioadele.
             </p>
           </div>
           <button
@@ -274,41 +265,25 @@ function GreenCardTopTable() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-slate-100">
-              {rows.map((row, rowIndex) => {
-                const isTrailer = row.code === 'F'
-                const showTrailerDivider = isTrailer && rows[rowIndex - 1]?.code !== 'F'
-                return (
-                  <React.Fragment key={row.key}>
-                    {showTrailerDivider && (
-                      <tr>
-                        <td
-                          colSpan={1 + zones.length}
-                          className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500 bg-slate-100 border-y border-slate-200"
-                        >
-                          Remorci — prima depinde de vehiculul care tractează
-                        </td>
-                      </tr>
-                    )}
-                    <tr className={rowIndex % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}>
-                      <td
-                        className="px-4 py-3 text-sm font-medium text-slate-900 sticky left-0 z-10 border-r border-slate-200"
-                        style={{ background: rowIndex % 2 === 0 ? 'white' : 'rgb(248 250 252)' }}
-                      >
-                        <div className="font-bold text-slate-800">{row.code}</div>
-                        <div className="text-xs text-slate-500 mt-0.5">{row.label}</div>
-                      </td>
-                      {zones.map(zone => renderTopCell(row, zone))}
-                    </tr>
-                  </React.Fragment>
-                )
-              })}
+              {rows.map((row, rowIndex) => (
+                <tr key={row.key} className={rowIndex % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}>
+                  <td
+                    className="px-4 py-3 text-sm font-medium text-slate-900 sticky left-0 z-10 border-r border-slate-200"
+                    style={{ background: rowIndex % 2 === 0 ? 'white' : 'rgb(248 250 252)' }}
+                  >
+                    <div className="font-bold text-slate-800">{row.code}</div>
+                    <div className="text-xs text-slate-500 mt-0.5">{row.label}</div>
+                  </td>
+                  {zones.map(zone => renderTopCell(row, zone))}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       </div>
 
       <div className="mt-4 text-center text-xs text-slate-400">
-        Fă clic pe o celulă pentru numele complet al companiei. Dacă mai multe companii au același preț, apar toate la același loc.
+        Fă clic pe o celulă pentru numele complet al companiei. Același număr înseamnă același preț.
       </div>
     </div>
   )
