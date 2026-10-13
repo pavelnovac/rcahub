@@ -154,7 +154,7 @@ function GreenCardTopTable() {
         className="relative px-2 py-2 text-xs border-r border-slate-200 bg-white hover:bg-slate-50 transition-colors cursor-pointer align-top"
         onClick={() => setExpandedCell(isExpanded ? null : cellId)}
       >
-        <div className="space-y-1">
+        <div className={isExpanded ? 'space-y-1 w-full max-w-xl' : 'space-y-1 w-72 max-w-full'}>
           {topOffers.map(item => {
             const colorScheme = getCompanyColor(item.company)
             return (
@@ -166,11 +166,11 @@ function GreenCardTopTable() {
                   <span className={`flex-shrink-0 w-4 h-4 rounded-full ${RANK_TONE[item.rank] || 'bg-slate-400'} text-white text-[10px] font-bold flex items-center justify-center`}>
                     {item.rank}
                   </span>
-                  <span className={`font-medium ${colorScheme.text} ${isExpanded ? 'text-xs' : 'truncate text-[11px]'}`}>
+                  <span className={`min-w-0 font-medium ${colorScheme.text} ${isExpanded ? 'text-xs leading-tight' : 'truncate text-[11px]'}`}>
                     {isExpanded ? item.companyName : getCompanyShortName(item.companyName)}
                   </span>
                 </div>
-                <span className={`font-bold ${colorScheme.text} text-[11px] tabular-nums whitespace-nowrap`}>
+                <span className={`shrink-0 font-bold ${colorScheme.text} text-[11px] tabular-nums whitespace-nowrap`}>
                   {formatCurrency(item.value)}{isExpanded ? ` ${cells.currency || 'MDL'}` : ''}
                 </span>
               </div>
